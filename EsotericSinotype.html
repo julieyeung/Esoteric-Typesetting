@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latin Sinotype</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fff; --surface: #f7f7f7; --border: #e0e0e0;
+  --border-dark: #bbb; --text: #111; --muted: #888; --dim: #ccc;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text);
+  font-family: 'DM Mono', monospace; font-size: 13px; overflow: hidden; user-select: none; }
+#app { display: grid; grid-template-rows: 44px 1fr 48px; height: 100vh; }
+header { border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 20px; gap: 16px; }
+.logo { font-size: 15px; } .logo em { font-style: italic; }
+.header-hint { color: var(--muted); font-size: 11px; }
+#main { display: grid; grid-template-columns: 290px 1fr; overflow: hidden; }
+#composer { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+#glyph-area { flex: 0 0 auto; height: 210px; display: flex; align-items: center;
+  justify-content: center; border-bottom: 1px solid var(--border); background: var(--bg); }
+#glyph-svg { display: block; }
+#stroke-seq { border-bottom: 1px solid var(--border); padding: 8px 14px; min-height: 36px;
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.badge { display: inline-flex; align-items: center; gap: 4px; background: var(--surface);
+  border: 1px solid var(--border-dark); border-radius: 3px; padding: 2px 6px 2px 5px;
+  font-size: 11px; line-height: 1; }
+.badge-key { color: var(--muted); font-size: 10px; }
+.placeholder { color: var(--dim); font-size: 11px; font-style: italic; }
+#candidates { flex: 1; overflow-y: auto; padding: 10px 14px; }
+.section-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px; }
+.cand-item { display: flex; align-items: center; gap: 10px; padding: 5px 8px;
+  border-radius: 3px; cursor: pointer; border: 1px solid transparent; margin-bottom: 2px; }
+.cand-item:hover { background: var(--surface); border-color: var(--border); }
+.cand-item.top { background: var(--text); border-color: var(--text); }
+.cand-item.arrow { background: var(--surface); border-color: var(--border-dark);
+  outline: 2px solid var(--text); outline-offset: -2px; }
+.cand-num { font-size: 10px; color: var(--dim); min-width: 14px; }
+.cand-item.top .cand-num { color: #666; }
+.cand-glyph { font-family: Georgia, serif; font-size: 20px; min-width: 22px; line-height: 1; }
+.cand-item.top .cand-glyph { color: var(--bg); }
+.cand-recipe { font-size: 10px; color: var(--muted); flex: 1; letter-spacing: .04em; }
+.cand-item.top .cand-recipe { color: #777; }
+.cand-status { font-size: 10px; color: var(--dim); }
+.cand-item.top .cand-status { color: #666; }
+.no-cand { font-size: 11px; color: var(--dim); font-style: italic; padding: 4px 0; }
+#output-area { display: flex; flex-direction: column; padding: 20px 24px; overflow: hidden; }
+.section-label.out { margin-bottom: 12px; }
+#text-line { display: flex; flex-wrap: wrap; align-items: flex-end;
+  gap: 2px; overflow-y: auto; flex: 1; }
+.letter-cell { display: inline-flex; }
+.letter-cell svg { display: block; }
+.space-cell { display: inline-block; width: 20px; height: 70px; }
+#cursor { width: 2px; height: 70px; background: var(--text); display: inline-block;
+  animation: blink 1s step-end infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+#keybar { border-top: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 14px; gap: 4px; overflow: hidden; }
+.kchip { display: flex; align-items: center; gap: 5px; padding: 3px 8px;
+  border: 1px solid var(--border); border-radius: 3px; font-size: 10px; white-space: nowrap;
+  transition: background .08s, border-color .08s; }
+.kchip.active { border-color: var(--border-dark); }
+.kchip .kk { font-weight: 500; }
+.kchip .ks { color: var(--muted); }
+.kchip .kdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.kbar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.kutil { display: flex; align-items: center; gap: 4px; padding: 3px 8px;
+  border: 1px solid var(--border); border-radius: 3px; font-size: 10px;
+  color: var(--muted); white-space: nowrap; }
+.kutil .kk { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <span class="logo">Latin <em>Sinotype</em></span>
+    <span class="header-hint">/ stroke-based type input</span>
+  </header>
+  <div id="main">
+    <div id="composer">
+      <div id="glyph-area">
+        <svg id="glyph-svg" width="168" height="196" viewBox="0 0 100 116"></svg>
+      </div>
+      <div id="stroke-seq"><span class="placeholder">press a stroke key…</span></div>
+      <div id="candidates">
+        <div class="section-label">candidates</div>
+        <div id="cand-list"><div class="no-cand">—</div></div>
+      </div>
+    </div>
+    <div id="output-area">
+      <div class="section-label out">composed text</div>
+      <div id="text-line"><div id="cursor"></div></div>
+    </div>
+  </div>
+  <div id="keybar"></div>
+</div>
+<script>
+/* ═══════════════════════════════════════════════════
+   GEOMETRY MODEL
+   All letters defined as named strokes.
+   Each stroke = { type, d }  where d is an SVG path
+   in a 100 × 116 viewBox.
+   Guides: cap=8  xh=38  base=90  desc=110
+   The SAME path is used at every size — viewBox scaling
+   handles all resizing, so preview === output always.
+═══════════════════════════════════════════════════ */
+const CAP=8, XH=38, BASE=90, DESC=110;
+
+/* ── STROKE TYPE COLORS ── */
+const TYPE_COLOR = {
+  vertical:   '#2563eb',  // blue
+  horizontal: '#16a34a',  // green
+  diag_l:     '#9333ea',  // purple
+  diag_r:     '#dc2626',  // red
+  arc_left:   '#ea580c',  // orange   (open-left arc: C, left of O/D/G)
+  arc_right:  '#0891b2',  // cyan     (open-right arc: right of O/D/B bumps)
+  arc_top:    '#ca8a04',  // amber    (arch: n,m,h,u top)
+  arc_bottom: '#be185d',  // pink     (bowl bottom: u, j foot)
+  dot:        '#65a30d',  // lime
+  descender:  '#7c3aed',  // violet
+};
+
+/* ── KEY MAP ── */
+const KEY_MAP = [
+  {key:'q', type:'vertical',   label:'vertical'},
+  {key:'w', type:'horizontal', label:'horiz'},
+  {key:'e', type:'diag_l',     label:'diag ↘'},
+  {key:'r', type:'diag_r',     label:'diag ↙'},
+  {key:'t', type:'arc_left',   label:'arc ('},
+  {key:'y', type:'arc_right',  label:'arc )'},
+  {key:'u', type:'arc_top',    label:'arch ∩'},
+  {key:'i', type:'dot',        label:'dot'},
+  {key:'o', type:'descender',  label:'descend'},
+  {key:'p', type:'arc_bottom', label:'arc ∪'},
+];
+const TYPE_FOR_KEY={}, KEY_FOR_TYPE={}, LABEL_FOR_TYPE={};
+KEY_MAP.forEach(m=>{
+  TYPE_FOR_KEY[m.key]=m.type;
+  KEY_FOR_TYPE[m.type]=m.key.toUpperCase();
+  LABEL_FOR_TYPE[m.type]=m.label;
+});
+
+/* ═══════════════════════════════════════════════════
+   LETTER RECIPES
+   Each stroke has: type (for key matching) + d (SVG path in 100×116 space)
+   Helvetica-inspired sans-serif proportions.
+   stroke-width in the path space ≈ 7 (scales with viewBox)
+═══════════════════════════════════════════════════ */
+
+// Helper: cubic bezier string
+const cb=(x1,y1,c1x,c1y,c2x,c2y,x2,y2)=>
+  `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+
+// Elliptical arc helper: arc from (x1,y1) to (x2,y2) with rx,ry
+const arc=(x1,y1,x2,y2,rx,ry,sweep=1,large=0)=>
+  `M${x1},${y1} A${rx},${ry} 0 ${large},${sweep} ${x2},${y2}`;
+
+// Full ellipse as two arcs (top half + bottom half)
+const ellipse=(cx,cy,rx,ry)=>
+  `M${cx-rx},${cy} A${rx},${ry} 0 1,1 ${cx+rx},${cy} A${rx},${ry} 0 1,1 ${cx-rx},${cy}`;
+
+const R = {
+  A:[
+    {type:'diag_r', d:`M50,${CAP} L8,${BASE}`},
+    {type:'diag_l', d:`M50,${CAP} L92,${BASE}`},
+    {type:'horizontal', d:`M22,65 L78,65`},
+  ],
+  B:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
+    {type:'horizontal', d:`M18,49 L55,49`},
+    {type:'horizontal', d:`M18,${BASE} L52,${BASE}`},
+    {type:'arc_right',  d:`M52,${CAP} C78,${CAP} 78,49 52,49`},
+    {type:'arc_right',  d:`M55,49 C84,49 84,${BASE} 52,${BASE}`},
+  ],
+  C:[
+    {type:'arc_left',   d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,76`},
+  ],
+  D:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L48,${CAP}`},
+    {type:'horizontal', d:`M18,${BASE} L48,${BASE}`},
+    {type:'arc_right',  d:`M48,${CAP} C82,${CAP} 82,${BASE} 48,${BASE}`},
+  ],
+  E:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L76,${CAP}`},
+    {type:'horizontal', d:`M18,49 L66,49`},
+    {type:'horizontal', d:`M18,${BASE} L76,${BASE}`},
+  ],
+  F:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L76,${CAP}`},
+    {type:'horizontal', d:`M18,49 L66,49`},
+  ],
+  G:[
+    {type:'arc_left',   d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,74`},
+    {type:'horizontal', d:`M55,49 L76,49`},
+    {type:'vertical',   d:`M76,49 L76,74`},
+  ],
+  H:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'vertical',   d:`M82,${CAP} L82,${BASE}`},
+    {type:'horizontal', d:`M18,49 L82,49`},
+  ],
+  I:[
+    {type:'vertical',   d:`M50,${CAP} L50,${BASE}`},
+    {type:'horizontal', d:`M28,${CAP} L72,${CAP}`},
+    {type:'horizontal', d:`M28,${BASE} L72,${BASE}`},
+  ],
+  J:[
+    {type:'horizontal', d:`M30,${CAP} L72,${CAP}`},
+    {type:'vertical',   d:`M64,${CAP} L64,78`},
+    {type:'arc_bottom', d:`M64,78 C64,${BASE} 50,${BASE} 38,${BASE} C28,${BASE} 20,92 20,84`},
+  ],
+  K:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'diag_l',     d:`M18,49 L76,${CAP}`},
+    {type:'diag_r',     d:`M18,49 L80,${BASE}`},
+  ],
+  L:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${BASE} L80,${BASE}`},
+  ],
+  M:[
+    {type:'vertical',   d:`M10,${CAP} L10,${BASE}`},
+    {type:'diag_l',     d:`M10,${CAP} L50,60`},
+    {type:'diag_r',     d:`M50,60 L90,${CAP}`},
+    {type:'vertical',   d:`M90,${CAP} L90,${BASE}`},
+  ],
+  N:[
+    {type:'vertical',   d:`M15,${CAP} L15,${BASE}`},
+    {type:'diag_l',     d:`M15,${CAP} L85,${BASE}`},
+    {type:'vertical',   d:`M85,${CAP} L85,${BASE}`},
+  ],
+  O:[
+    {type:'arc_left',   d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
+    {type:'arc_right',  d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
+  ],
+  P:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
+    {type:'horizontal', d:`M18,49 L52,49`},
+    {type:'arc_right',  d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
+  ],
+  Q:[
+    {type:'arc_left',   d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
+    {type:'arc_right',  d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
+    {type:'diag_l',     d:`M56,74 L82,${BASE}`},
+  ],
+  R:[
+    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
+    {type:'horizontal', d:`M18,49 L52,49`},
+    {type:'arc_right',  d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
+    {type:'diag_l',     d:`M46,49 L80,${BASE}`},
+  ],
+  S:[
+    {type:'arc_left',   d:`M72,20 C72,11 62,${CAP} 50,${CAP} C34,${CAP} 20,18 20,32 C20,44 32,49 50,49`},
+    {type:'arc_right',  d:`M50,49 C68,49 80,54 80,68 C80,82 66,${BASE} 50,${BASE} C38,${BASE} 28,85 28,76`},
+  ],
+  T:[
+    {type:'horizontal', d:`M10,${CAP} L90,${CAP}`},
+    {type:'vertical',   d:`M50,${CAP} L50,${BASE}`},
+  ],
+  U:[
+    {type:'vertical',   d:`M18,${CAP} L18,76`},
+    {type:'vertical',   d:`M82,${CAP} L82,76`},
+    {type:'arc_bottom', d:`M18,76 C18,${BASE} 82,${BASE} 82,76`},
+  ],
+  V:[
+    {type:'diag_r',     d:`M8,${CAP} L50,${BASE}`},
+    {type:'diag_l',     d:`M50,${BASE} L92,${CAP}`},
+  ],
+  W:[
+    {type:'diag_r',     d:`M6,${CAP} L28,${BASE}`},
+    {type:'diag_l',     d:`M28,${BASE} L50,58`},
+    {type:'diag_r',     d:`M50,58 L72,${BASE}`},
+    {type:'diag_l',     d:`M72,${BASE} L94,${CAP}`},
+  ],
+  X:[
+    {type:'diag_l',     d:`M8,${CAP} L92,${BASE}`},
+    {type:'diag_r',     d:`M92,${CAP} L8,${BASE}`},
+  ],
+  Y:[
+    {type:'diag_r',     d:`M8,${CAP} L50,54`},
+    {type:'diag_l',     d:`M50,54 L92,${CAP}`},
+    {type:'vertical',   d:`M50,54 L50,${BASE}`},
+  ],
+  Z:[
+    {type:'horizontal', d:`M12,${CAP} L88,${CAP}`},
+    {type:'diag_l',     d:`M88,${CAP} L12,${BASE}`},
+    {type:'horizontal', d:`M12,${BASE} L88,${BASE}`},
+  ],
+};
+
+/* ── STATE ── */
+let inputTypes = [];
+let committed  = [];
+let arrowSel   = 0;
+
+/* ═══════════════════════════════════════════════════
+   SVG RENDERING
+   Single render function used for BOTH preview and output.
+   size = viewBox units width (always 100), rendered via
+   SVG width/height attributes for actual pixel size.
+═══════════════════════════════════════════════════ */
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);
+  if(parent)parent.appendChild(e);
+  return e;
+}
+
+/* Draw guides into an svg element (guides in 100×116 space) */
+function drawGuides(svg){
+  svg.innerHTML='';
+  el('rect',{x:0,y:0,width:100,height:116,fill:'#fff'},svg);
+  [[0,'#f4f4f4',true],[CAP,'#ebebeb',true],[XH,'#ebebeb',true],
+   [BASE,'#d4d4d4',false],[DESC,'#ebebeb',true]].forEach(([y,c,dash])=>{
+    const a={x1:0,y1:y,x2:100,y2:y,stroke:c,'stroke-width':y===BASE?0.6:0.4};
+    if(dash)a['stroke-dasharray']='1.5 2.5';
+    el('line',a,svg);
+  });
+  [['cap',CAP],['x',XH],['base',BASE]].forEach(([lbl,y])=>{
+    const t=el('text',{x:101,y,fill:'#ccc','font-size':3,'dominant-baseline':'middle',
+      'font-family':'DM Mono,monospace'},svg);
+    t.textContent=lbl;
+  });
+}
+
+/* Render a letter's strokes onto an svg.
+   strokes: array of {type, d, ghost?}
+   sw: stroke-width in path units */
+function paintStrokes(svg, strokes, sw){
+  strokes.forEach(({type,d,ghost,animate})=>{
+    const color = ghost ? '#e0e0e0' : TYPE_COLOR[type] || '#111';
+    const p=el('path',{d,fill:'none',stroke:color,
+      'stroke-width':sw,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+    if(animate){
+      let len=60;
+      try{const t=el('path',{d},svg);len=t.getTotalLength()||60;t.remove();}catch(e){}
+      p.style.strokeDasharray=len;
+      p.style.strokeDashoffset=len;
+      p.style.transition='stroke-dashoffset 0.22s ease-out';
+      requestAnimationFrame(()=>p.style.strokeDashoffset=0);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN GLYPH PREVIEW
+   Shows top (or arrow-selected) candidate's recipe.
+   Entered stroke types → solid colored.
+   Remaining strokes → ghost gray.
+═══════════════════════════════════════════════════ */
+function renderGlyph(){
+  const svg=document.getElementById('glyph-svg');
+  drawGuides(svg);
+  if(!inputTypes.length)return;
+
+  const cands=getCandidates(inputTypes);
+  const recipe=cands.length ? (cands[arrowSel]||cands[0]).recipe : null;
+
+  if(!recipe){
+    // No candidate: draw generic placeholder strokes for entered types
+    inputTypes.forEach((type,i)=>{
+      const placeholder={
+        vertical:  `M50,${CAP} L50,${BASE}`,
+        horizontal:`M15,49 L85,49`,
+        diag_l:    `M10,${CAP} L90,${BASE}`,
+        diag_r:    `M90,${CAP} L10,${BASE}`,
+        arc_left:  `M70,20 C70,${CAP} 30,${CAP} 30,49 C30,${BASE} 70,${BASE} 70,76`,
+        arc_right: `M30,20 C30,${CAP} 70,${CAP} 70,49 C70,${BASE} 30,${BASE} 30,76`,
+        arc_top:   `M15,${BASE} C15,30 85,30 85,${BASE}`,
+        arc_bottom:`M15,60 C15,${BASE} 85,${BASE} 85,60`,
+        dot:       null,
+        descender: `M50,${BASE} L50,${DESC}`,
+      }[type];
+      if(placeholder){
+        el('path',{d:placeholder,fill:'none',stroke:TYPE_COLOR[type]||'#111',
+          'stroke-width':6.5,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+      }
+    });
+    return;
+  }
+
+  // Consume input types against recipe slots (greedy, type-matched)
+  const pool=recipe.map((s,i)=>({...s,i,used:false}));
+  const consumed=new Set();
+  inputTypes.forEach(type=>{
+    const slot=pool.find(p=>!p.used&&p.type===type);
+    if(slot){slot.used=true;consumed.add(slot.i);}
+  });
+
+  // Ghosts first (so solid strokes paint on top)
+  const ghosts=recipe
+    .map((s,i)=>(!consumed.has(i)?{...s,ghost:true}:null))
+    .filter(Boolean);
+  paintStrokes(svg,ghosts,6.5);
+
+  // Solid confirmed strokes (animate last one)
+  let solidIdx=0;
+  recipe.forEach((s,i)=>{
+    if(!consumed.has(i))return;
+    const isLast=(solidIdx===consumed.size-1);
+    paintStrokes(svg,[{...s,animate:isLast}],6.5);
+    solidIdx++;
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   CANDIDATE MATCHING
+═══════════════════════════════════════════════════ */
+function getCandidates(types){
+  if(!types.length)return[];
+  const want={};
+  types.forEach(t=>{want[t]=(want[t]||0)+1;});
+  const out=[];
+  for(const[letter,recipe]of Object.entries(R)){
+    const have={};
+    recipe.forEach(s=>{have[s.type]=(have[s.type]||0)+1;});
+    let ok=true;
+    for(const[t,n]of Object.entries(want)){if((have[t]||0)<n){ok=false;break;}}
+    if(!ok)continue;
+    out.push({letter,recipe,missing:recipe.length-types.length});
+  }
+  out.sort((a,b)=>a.missing-b.missing||a.letter.localeCompare(b.letter));
+  return out.slice(0,9);
+}
+
+/* ═══════════════════════════════════════════════════
+   OUTPUT RENDERING
+   Each committed letter uses the same recipe paths,
+   rendered via viewBox scaling into a small cell.
+═══════════════════════════════════════════════════ */
+const OUT_PX_H=70; // output cell pixel height
+const OUT_PX_W=50; // output cell pixel width
+
+function makeLetterSVG(letter){
+  const recipe=R[letter];
+  if(!recipe)return null;
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('width',OUT_PX_W);
+  svg.setAttribute('height',OUT_PX_H);
+  // viewBox matches our path space exactly — no coordinate math needed
+  svg.setAttribute('viewBox','0 0 100 116');
+  // baseline guide
+  el('line',{x1:0,y1:BASE,x2:100,y2:BASE,stroke:'#e8e8e8','stroke-width':0.8},svg);
+  // draw all strokes at output weight
+  paintStrokes(svg,recipe,7);
+  return svg;
+}
+
+function renderOutput(){
+  const wrap=document.getElementById('text-line');
+  wrap.innerHTML='';
+  committed.forEach(item=>{
+    if(item.type==='space'){
+      const sp=document.createElement('div');
+      sp.className='space-cell';
+      wrap.appendChild(sp);
+    } else {
+      const cell=document.createElement('div');
+      cell.className='letter-cell';
+      const svg=makeLetterSVG(item.letter);
+      if(svg)cell.appendChild(svg);
+      wrap.appendChild(cell);
+    }
+  });
+  const cur=document.createElement('div');
+  cur.id='cursor';
+  wrap.appendChild(cur);
+}
+
+/* ═══════════════════════════════════════════════════
+   STROKE SEQUENCE STRIP
+═══════════════════════════════════════════════════ */
+function updateSeq(){
+  const seqEl=document.getElementById('stroke-seq');
+  if(!inputTypes.length){
+    seqEl.innerHTML='<span class="placeholder">press a stroke key…</span>';
+    return;
+  }
+  seqEl.innerHTML=inputTypes.map(t=>{
+    const col=TYPE_COLOR[t]||'#111';
+    return `<span class="badge">
+      <span class="badge-key" style="color:${col}">${KEY_FOR_TYPE[t]||'?'}</span>
+      <span style="color:${col}">${LABEL_FOR_TYPE[t]||t}</span>
+    </span>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   CANDIDATE LIST
+═══════════════════════════════════════════════════ */
+function updateCandidates(resetSel=true){
+  if(resetSel)arrowSel=0;
+  const list=document.getElementById('cand-list');
+  const cands=getCandidates(inputTypes);
+  if(!cands.length){list.innerHTML='<div class="no-cand">no matches</div>';return;}
+  arrowSel=Math.max(0,Math.min(arrowSel,cands.length-1));
+  list.innerHTML='';
+  cands.forEach((c,i)=>{
+    const div=document.createElement('div');
+    div.className='cand-item'+(i===0?' top':'')+(i===arrowSel?' arrow':'');
+    const recipeKeys=c.recipe.map(s=>{
+      const col=i===0?'#999':TYPE_COLOR[s.type]||'#888';
+      return `<span style="color:${col}">${KEY_FOR_TYPE[s.type]||'?'}</span>`;
+    }).join(' ');
+    const status=c.missing===0?'complete ✓':`+${c.missing}`;
+    div.innerHTML=`
+      <span class="cand-num">${i+1}</span>
+      <span class="cand-glyph">${c.letter}</span>
+      <span class="cand-recipe">${recipeKeys}</span>
+      <span class="cand-status">${status}</span>`;
+    div.addEventListener('click',()=>commit(c.letter));
+    list.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   COMMIT / SPACE / BACKSPACE
+═══════════════════════════════════════════════════ */
+function commit(letter){
+  committed.push({type:'letter',letter});
+  inputTypes=[];arrowSel=0;
+  renderGlyph();updateSeq();updateCandidates();renderOutput();
+}
+function addSpace(){
+  committed.push({type:'space'});renderOutput();
+}
+function backspace(){
+  if(inputTypes.length>0){inputTypes.pop();}
+  else if(committed.length>0){committed.pop();renderOutput();}
+  arrowSel=0;renderGlyph();updateSeq();updateCandidates();
+}
+
+/* ═══════════════════════════════════════════════════
+   KEYBOARD BAR
+═══════════════════════════════════════════════════ */
+function buildKeybar(){
+  const bar=document.getElementById('keybar');
+  KEY_MAP.forEach(m=>{
+    const col=TYPE_COLOR[m.type]||'#111';
+    const chip=document.createElement('div');
+    chip.className='kchip'; chip.id=`chip-${m.key}`;
+    chip.innerHTML=`<span class="kdot" style="background:${col}"></span><span class="kk">${m.key.toUpperCase()}</span><span class="ks">${m.label}</span>`;
+    bar.appendChild(chip);
+  });
+  const sep=document.createElement('div');
+  sep.className='kbar-sep';bar.appendChild(sep);
+  [{k:'1–9',l:'pick'},{k:'↑↓',l:'navigate'},{k:'SPC',l:'commit/space'},{k:'↵',l:'commit'},{k:'⌫',l:'undo'}].forEach(u=>{
+    const d=document.createElement('div');
+    d.className='kutil';
+    d.innerHTML=`<span class="kk">${u.k}</span><span>${u.l}</span>`;
+    bar.appendChild(d);
+  });
+}
+
+function flashKey(key){
+  const chip=document.getElementById(`chip-${key}`);
+  if(!chip)return;
+  const col=TYPE_COLOR[TYPE_FOR_KEY[key]]||'#111';
+  chip.style.background=col+'22';
+  chip.style.borderColor=col;
+  setTimeout(()=>{chip.style.background='';chip.style.borderColor='';},140);
+}
+
+/* ═══════════════════════════════════════════════════
+   KEYBOARD HANDLER
+═══════════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const key=e.key.toLowerCase();
+  if(TYPE_FOR_KEY[key]){
+    e.preventDefault();
+    inputTypes.push(TYPE_FOR_KEY[key]);
+    flashKey(key);renderGlyph();updateSeq();updateCandidates();
+    return;
+  }
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    const cands=getCandidates(inputTypes);if(!cands.length)return;
+    arrowSel=e.key==='ArrowDown'?Math.min(arrowSel+1,cands.length-1):Math.max(arrowSel-1,0);
+    updateCandidates(false);renderGlyph();
+    return;
+  }
+  const n=parseInt(e.key);
+  if(n>=1&&n<=9){
+    e.preventDefault();
+    const cands=getCandidates(inputTypes);
+    if(cands[n-1])commit(cands[n-1].letter);
+    return;
+  }
+  if(e.key===' '){
+    e.preventDefault();
+    if(!inputTypes.length){addSpace();}
+    else{const c=getCandidates(inputTypes);if(c.length)commit((c[arrowSel]||c[0]).letter);}
+    return;
+  }
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const c=getCandidates(inputTypes);
+    if(c.length)commit((c[arrowSel]||c[0]).letter);
+    return;
+  }
+  if(e.key==='Backspace'){e.preventDefault();backspace();return;}
+});
+
+/* ── INIT ── */
+buildKeybar();renderGlyph();updateSeq();updateCandidates();renderOutput();
+</script>
+</body>
+</html>
