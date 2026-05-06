@@ -282,15 +282,18 @@ nav a{pointer-events:all;}
   padding:10px;
   gap:0;
   order:-1;
+  align-self:stretch;
 }
 
-/* Key grid — 4 cols × 5 rows, fixed row heights so no gap */
+/* Key grid — 4 cols × 5 rows, fills entire panel height */
 .kb-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  grid-template-rows:repeat(5,72px);
+  grid-template-rows:repeat(5,1fr);
   gap:5px;
   width:100%;
+  flex:1;
+  min-height:0;
 }
 
 /* Base key — ALL show border, none are invisible */
@@ -342,17 +345,18 @@ nav a{pointer-events:all;}
   line-height:1;
   font-family:'receipt-narrow',serif !important;
 }
-/* Enter key spans 2 rows */
+/* Wide key spans 2 cols — bottom row left rectangle */
+.kb-key.wide-key{
+  grid-column:span 2;
+}
+/* Enter key — explicit placement col 4 rows 4+5 */
 .kb-key.enter-key{
-  grid-row:span 2;
+  grid-column:4;
+  grid-row:4 / span 2;
+  display:flex;align-items:center;justify-content:center;
 }
 .kb-key.enter-key .kb-label{
   position:static;font-size:18px;color:var(--white);opacity:.65;
-  margin-top:0;
-}
-/* Wide key spans 2 cols */
-.kb-key.wide-key{
-  grid-column:span 2;
 }
 
 
@@ -1126,18 +1130,17 @@ function buildKeyboardPanel(){
     {type:'empty'},
   ];
 
-  cells.forEach(c=>{
+  cells.forEach((c,idx)=>{
     const cell=document.createElement('div');
     if(c.type==='wide'){
-      // Rectangle spanning 2 columns
       cell.className='kb-key wide-key';
-      // no content — just the shape
     } else if(c.type==='empty'){
       cell.className='kb-key empty';
     } else if(c.enterKey){
       cell.className='kb-key enter-key';
       cell.id=c.id||'util-enter';
-      cell.style.gridRow='span 2';
+      cell.style.gridColumn='4';
+      cell.style.gridRow='4 / span 2';
       cell.innerHTML=`<span class="kb-label" style="position:static;font-size:18px;opacity:.65">enter</span>`;
     } else {
       cell.className='kb-key';
