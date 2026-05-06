@@ -4,213 +4,693 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Latin Sinotype</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Receipt by Pieter van Rosmalen via Adobe Fonts -->
+<link rel="stylesheet" href="https://use.typekit.net/prx2rdz.css">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #fff; --surface: #f7f7f7; --border: #e0e0e0;
-  --border-dark: #bbb; --text: #111; --muted: #888; --dim: #ccc;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#000;
+  --white:#fff;
+  --blue:#0048ff;
+  --font:'receipt-narrow',serif;
+  --px:80px;
+  --max:1440px;
+  --border-col:#fff;
+  --text-inv:#000;
+  --surface:#000;
 }
-html, body { height: 100%; background: var(--bg); color: var(--text);
-  font-family: 'DM Mono', monospace; font-size: 13px; overflow: hidden; user-select: none; }
-#app { display: grid; grid-template-rows: 44px 1fr 48px; height: 100vh; }
-header { border-bottom: 1px solid var(--border); display: flex; align-items: center;
-  padding: 0 20px; gap: 16px; }
-.logo { font-size: 15px; } .logo em { font-style: italic; }
-.header-hint { color: var(--muted); font-size: 11px; }
-#main { display: grid; grid-template-columns: 290px 1fr; overflow: hidden; }
-#composer { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-#glyph-area { flex: 0 0 auto; height: 210px; display: flex; align-items: center;
-  justify-content: center; border-bottom: 1px solid var(--border); background: var(--bg); }
-#glyph-svg { display: block; }
-#stroke-seq { border-bottom: 1px solid var(--border); padding: 8px 14px; min-height: 36px;
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-.badge { display: inline-flex; align-items: center; gap: 4px; background: var(--surface);
-  border: 1px solid var(--border-dark); border-radius: 3px; padding: 2px 6px 2px 5px;
-  font-size: 11px; line-height: 1; }
-.badge-key { color: var(--muted); font-size: 10px; }
-.placeholder { color: var(--dim); font-size: 11px; font-style: italic; }
-#candidates { flex: 1; overflow-y: auto; padding: 10px 14px; }
-.section-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 8px; }
-.cand-item { display: flex; align-items: center; gap: 10px; padding: 5px 8px;
-  border-radius: 3px; cursor: pointer; border: 1px solid transparent; margin-bottom: 2px; }
-.cand-item:hover { background: var(--surface); border-color: var(--border); }
-.cand-item.top { background: var(--text); border-color: var(--text); }
-.cand-item.arrow { background: var(--surface); border-color: var(--border-dark);
-  outline: 2px solid var(--text); outline-offset: -2px; }
-.cand-num { font-size: 10px; color: var(--dim); min-width: 14px; }
-.cand-item.top .cand-num { color: #666; }
-.cand-glyph { font-family: Georgia, serif; font-size: 20px; min-width: 22px; line-height: 1; }
-.cand-item.top .cand-glyph { color: var(--bg); }
-.cand-recipe { font-size: 10px; color: var(--muted); flex: 1; letter-spacing: .04em; }
-.cand-item.top .cand-recipe { color: #777; }
-.cand-status { font-size: 10px; color: var(--dim); }
-.cand-item.top .cand-status { color: #666; }
-.no-cand { font-size: 11px; color: var(--dim); font-style: italic; padding: 4px 0; }
-#output-area { display: flex; flex-direction: column; padding: 20px 24px; overflow: hidden; }
-.section-label.out { margin-bottom: 12px; }
-#text-line { display: flex; flex-wrap: wrap; align-items: flex-end;
-  gap: 2px; overflow-y: auto; flex: 1; }
-.letter-cell { display: inline-flex; }
-.letter-cell svg { display: block; }
-.space-cell { display: inline-block; width: 20px; height: 70px; }
-#cursor { width: 2px; height: 70px; background: var(--text); display: inline-block;
-  animation: blink 1s step-end infinite; flex-shrink: 0; }
-@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
-#keybar { border-top: 1px solid var(--border); display: flex; align-items: center;
-  padding: 0 14px; gap: 4px; overflow: hidden; }
-.kchip { display: flex; align-items: center; gap: 5px; padding: 3px 8px;
-  border: 1px solid var(--border); border-radius: 3px; font-size: 10px; white-space: nowrap;
-  transition: background .08s, border-color .08s; }
-.kchip.active { border-color: var(--border-dark); }
-.kchip .kk { font-weight: 500; }
-.kchip .ks { color: var(--muted); }
-.kchip .kdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.kbar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
-.kutil { display: flex; align-items: center; gap: 4px; padding: 3px 8px;
-  border: 1px solid var(--border); border-radius: 3px; font-size: 10px;
-  color: var(--muted); white-space: nowrap; }
-.kutil .kk { color: var(--text); font-weight: 500; }
+
+/* LIGHT MODE */
+html.light{
+  --bg:#fff;
+  --white:#000;
+  --border-col:#000;
+  --text-inv:#fff;
+  --surface:#f5f5f5;
+}
+
+html{background:var(--bg);color:var(--white);font-family:var(--font);font-size:48px;scroll-behavior:smooth;}
+body{background:var(--bg);}
+
+/* Light mode body elements */
+html.light body{background:#fff;}
+html.light .hero-title{-webkit-text-stroke:3px #000;text-stroke:3px #000;}
+html.light .cta-btn{border-color:#000;color:#000;}
+html.light .cta-btn:hover{background:#000;color:#fff;}
+html.light .key-cell{border-color:#000;}
+html.light .key-inner{border-color:rgba(0,0,0,.3);}
+html.light .alpha-cell{border-color:#000;}
+html.light .alpha-cell svg rect{fill:transparent !important;}
+html.light .alpha-cell svg line{stroke:rgba(0,0,0,.15) !important;}
+html.light .alpha-cell > div{color:#000 !important;opacity:1 !important;}
+html.light .tool-box{border-color:#000;}
+html.light .tool-left{border-right-color:#000;}
+html.light .glyph-wrap{border-bottom-color:rgba(0,0,0,.2);}
+html.light .glyph-wrap svg rect{fill:transparent !important;}
+html.light #glyph-svg rect{fill:transparent !important;}
+html.light .stroke-input-row{border-bottom-color:rgba(0,0,0,.2);}
+html.light .tool-right{background:transparent;}
+html.light .tool-right-header{border-bottom-color:rgba(0,0,0,.2);color:#000;}
+html.light .tool-bottom{border-top-color:rgba(0,0,0,.15);}
+html.light .tool-hint{color:#000;}
+html.light .tool-hint span{border-color:rgba(0,0,0,.3);}
+html.light .ime-dropdown{border-color:#000;}
+html.light .keyboard-panel{border-color:#000;background:#fff;}
+html.light .kb-key{border-color:rgba(0,0,0,.3);background:#fff;}
+html.light .kb-key.empty{border-color:rgba(0,0,0,.3);background:#fff;}
+html.light .kb-key.wide-key{border-color:rgba(0,0,0,.3);background:#fff;}
+html.light .kb-num{color:rgba(0,0,0,.5);}
+html.light .kb-sym{color:#000;}
+html.light .kb-label{color:rgba(0,0,0,.45);}
+html.light .kb-key.enter-key .kb-label{color:#000;}
+html.light .kb-key.flash{background:#000 !important;border-color:#000 !important;}
+html.light .kb-key.flash .kb-num,
+html.light .kb-key.flash .kb-sym,
+html.light .kb-key.flash .kb-label{color:#fff !important;}
+html.light .stroke-pill{border-color:rgba(0,0,0,.3) !important;}
+html.light .stroke-input-empty{color:rgba(0,0,0,.4);}
+html.light .how-body{color:#000;}
+html.light .shortcut-key-box span{border-color:#000;}
+html.light .shortcut-desc{color:#000;}
+html.light .colophon{color:#000;}
+html.light .colophon-body{color:#000;}
+html.light .nav-links a{color:#000;}
+html.light .nav-sep{color:#000;}
+html.light .mode-toggle-btn{color:#000;border-color:#000;}
+html.light .mode-toggle-btn:hover{background:#000;color:#fff;}
+html.light .sec-title{color:#000;}
+html.light .esoteric-title{color:#000;}
+html.light .esoteric-body{color:#000;}
+html.light .hero-sub{color:#000;}
+html.light .alpha-intro{color:#000;}
+html.light .how-title{color:#000;}
+html.light .how-num{color:#000;opacity:1;}
+html.light .output-canvas{background:transparent;}
+html.light #cursor{background:#000;}
+html.light .stroke-pill{color:#000 !important;}
+html.light .key-num{color:rgba(0,0,0,.6);}
+html.light .keys-grid{border-color:#000;}
+html.light .shortcut-row{border-bottom-color:rgba(0,0,0,.12);}
+html.light .alpha-grid{border-color:#000;}
+html.light .tool-with-keyboard .tool-box{border-color:#000;}
+html.light .output-canvas svg rect{fill:transparent !important;}
+html.light .output-canvas svg line{stroke:rgba(0,0,0,.15) !important;}
+html.light .output-canvas svg path{stroke:#000 !important;}
+html.light #cursor{background:#000;}
+html.light ::-webkit-scrollbar-thumb{background:#999;}
+html.light .download-step-num{color:#000 !important;opacity:1 !important;}
+
+/* NAV — top-left fixed, no bg no border */
+nav{
+  position:fixed;top:0;left:0;z-index:100;
+  padding:18px 32px;
+  pointer-events:none;
+}
+nav a{pointer-events:all;}
+.nav-links{display:flex;align-items:center;font-size:36px;font-weight:700;}
+.nav-links a{color:var(--white);text-decoration:none;}
+.nav-links a:hover{text-decoration:underline;}
+.nav-sep{opacity:.45;margin:0 10px;}
+
+/* HERO */
+.hero{padding:180px var(--px) 120px;text-align:center;max-width:var(--max);margin:0 auto;}
+.hero-title{
+  font-size:250px;line-height:.88;font-weight:700;
+  color:transparent;
+  -webkit-text-stroke:3px var(--white);text-stroke:3px var(--white);
+  user-select:none;margin-bottom:60px;
+}
+.hero-sub{font-size:64px;line-height:1.2;font-weight:700;max-width:1200px;margin:0 auto;}
+
+/* ESOTERIC SECTION */
+.esoteric-section{padding:120px var(--px);text-align:center;max-width:var(--max);margin:0 auto;}
+.esoteric-title{font-size:64px;font-weight:700;margin-bottom:48px;}
+.esoteric-body{font-size:48px;line-height:1.35;max-width:1100px;margin:0 auto 60px;}
+.cta-btn{
+  display:inline-block;border:5px solid var(--white);
+  padding:16px 48px;font-size:48px;font-family:var(--font);font-weight:700;
+  color:var(--white);text-decoration:none;cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.cta-btn:hover{background:var(--white);color:var(--bg);}
+
+/* SECTION TITLES */
+.sec-title{font-size:64px;font-weight:700;text-align:center;margin-bottom:80px;}
+
+/* SHARED SECTION PADDING */
+.page-section{padding:120px 24px;max-width:var(--max);margin:0 auto;}
+
+/* HOW TO USE */
+.how-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:80px;row-gap:100px;}
+.how-num{font-size:96px;font-weight:700;opacity:1;line-height:1;margin-bottom:16px;color:var(--white);}
+.how-title{font-size:48px;font-weight:700;margin-bottom:20px;}
+.how-body{font-size:36px;line-height:1.5;}
+
+/* STROKE KEYS */
+.keys-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
+.key-cell{
+  border:5px solid var(--white);padding:32px 16px 28px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.key-num{font-size:96px;font-weight:700;line-height:1;}
+.key-inner{
+  width:100px;height:100px;border:3px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+}
+.key-inner svg{display:block;}
+
+/* SHORTCUTS */
+.shortcuts-list{max-width:1100px;margin:0 auto;}
+.shortcut-row{
+  display:flex;align-items:center;gap:48px;padding:28px 0;
+  border-bottom:2px solid rgba(255,255,255,.8);
+}
+.shortcut-row:last-child{border-bottom:none;}
+.shortcut-key-box{min-width:180px;flex-shrink:0;}
+.shortcut-key-box span{
+  border:5px solid var(--white);padding:8px 20px;
+  font-size:48px;font-family:var(--font);font-weight:700;white-space:nowrap;
+}
+.shortcut-desc{font-size:48px;line-height:1.3;}
+
+/* ALPHABET */
+.alpha-intro{text-align:center;font-size:36px;max-width:1000px;margin:0 auto 60px;line-height:1.5;}
+.alpha-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.alpha-cell{
+  border:5px solid var(--white);position:relative;
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.alpha-cell svg{display:block;width:80%;height:80%;}
+
+/* TYPESETTING TOOL */
+.tool-box{border:5px solid var(--white);}
+.tool-inner{display:grid;grid-template-columns:300px 1fr;min-height:580px;}
+.tool-left{border-right:5px solid var(--white);display:flex;flex-direction:column;position:relative;}
+.glyph-wrap{
+  flex:0 0 auto;height:280px;
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:2px solid rgba(255,255,255,.8);
+}
+#glyph-svg{display:block;}
+
+.stroke-input-row{position:relative;border-bottom:2px solid rgba(255,255,255,.8);}
+.stroke-input-bar{
+  padding:14px 20px;min-height:60px;
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;cursor:default;
+}
+.stroke-pill{
+  border:2px solid rgba(255,255,255,.4);padding:4px 12px;
+  font-size:20px;font-family:var(--font);
+}
+.stroke-input-empty{opacity:1;font-size:20px;letter-spacing:.08em;text-transform:uppercase;}
+
+/* IME DROPDOWN — horizontal 3-column grid */
+.ime-dropdown{
+  position:absolute;top:100%;left:0;right:0;
+  background:#fff;
+  border:3px solid #000;border-top:none;
+  border-radius:0 0 12px 12px;
+  z-index:200;display:none;flex-direction:row;
+  box-shadow:0 16px 48px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+.ime-dropdown.open{display:flex;}
+.ime-item{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:16px 8px 14px;
+  min-height:130px;
+  border-right:2px solid #d6d6d6;
+  cursor:pointer;
+  background:#ededed;color:#000;
+  position:relative;
+  transition:background .08s;
+}
+.ime-item:last-child{border-right:none;}
+.ime-item:hover{background:#ddd;}
+.ime-item.ime-selected{background:var(--blue);color:#fff;border-color:var(--blue);}
+.ime-item-num{
+  position:absolute;top:10px;left:12px;
+  font-size:24px;font-weight:700;font-family:var(--font);
+  color:#888;line-height:1;
+}
+.ime-item.ime-selected .ime-item-num{color:rgba(255,255,255,.5);}
+.ime-item-letter{font-size:80px;font-weight:700;font-family:var(--font);line-height:1;margin-bottom:8px;}
+.ime-item-keys{font-size:18px;font-weight:700;font-family:var(--font);letter-spacing:.1em;color:#888;text-align:center;}
+.ime-item.ime-selected .ime-item-keys{color:rgba(255,255,255,.55);}
+
+/* OUTPUT */
+.tool-right{display:flex;flex-direction:column;background:#000;}
+.tool-right-header{padding:18px 24px;border-bottom:2px solid rgba(255,255,255,.8);font-size:20px;text-transform:uppercase;letter-spacing:.14em;opacity:1;}
+.output-canvas{flex:1;padding:24px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:2px;row-gap:4px;overflow-y:auto;min-height:200px;}
+.letter-cell{display:inline-flex;}
+.letter-cell svg{display:block;}
+.space-cell{display:inline-block;width:20px;height:56px;}
+#cursor{width:3px;height:56px;background:#fff;display:inline-block;animation:blink 1s step-end infinite;flex-shrink:0;vertical-align:top;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.tool-bottom{border-top:2px solid rgba(255,255,255,.8);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.tool-hint{font-size:20px;opacity:1;letter-spacing:.06em;}
+.tool-hint span{border:1px solid rgba(255,255,255,.3);padding:2px 8px;margin-right:4px;font-size:18px;font-family:var(--font);}
+
+/* COLOPHON */
+.colophon{text-align:center;padding:120px var(--px);}
+.colophon-title{font-size:64px;font-weight:700;margin-bottom:48px;}
+.colophon-body{font-size:48px;line-height:1.6;}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#333;}
+
+/* KEYBOARD PANEL — sits right of the tool, shows stroke key guide */
+/* TOOL + KEYBOARD WRAPPER — gap between keyboard and tool */
+.tool-with-keyboard{
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  gap:40px;
+}
+
+/* KEYBOARD PANEL — LEFT side, standalone box */
+.keyboard-panel{
+  flex:0 0 auto;
+  width:380px;
+  border:3px solid var(--white);
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  padding:10px;
+  gap:0;
+  order:-1;
+}
+
+/* Key grid — 4 cols × 5 rows, fixed row heights so no gap */
+.kb-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(5,72px);
+  gap:5px;
+  width:100%;
+}
+
+/* Base key — ALL show border, none are invisible */
+.kb-key{
+  border:2px solid rgba(255,255,255,.35);
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  cursor:default;
+  padding:4px;
+  transition:background .06s,border-color .06s;
+  overflow:hidden;
+}
+/* Empty keys still show their border */
+.kb-key.empty{
+  border:2px solid rgba(255,255,255,.35);
+  background:#000;
+}
+
+/* Flash state */
+.kb-key.flash{background:#fff !important;border-color:#fff !important;}
+.kb-key.flash .kb-num,
+.kb-key.flash .kb-sym,
+.kb-key.flash .kb-label{color:#000 !important;}
+
+/* Key number — top-left */
+.kb-num{
+  position:absolute;top:5px;left:7px;
+  font-size:16px;font-weight:700;
+  color:rgba(255,255,255,.6);
+  line-height:1;
+  font-family:'receipt-narrow',serif !important;
+}
+/* Stroke symbol — large center — force Receipt font */
+.kb-sym{
+  font-size:36px;font-weight:700;
+  line-height:1;color:#fff;
+  font-family:'receipt-narrow',serif !important;
+  font-style:normal;
+}
+/* Label — bottom-right */
+.kb-label{
+  position:absolute;bottom:5px;right:6px;
+  font-size:14px;font-weight:700;
+  color:rgba(255,255,255,.5);
+  line-height:1;
+  font-family:'receipt-narrow',serif !important;
+}
+/* Enter key spans 2 rows */
+.kb-key.enter-key{
+  grid-row:span 2;
+}
+.kb-key.enter-key .kb-label{
+  position:static;font-size:18px;color:var(--white);opacity:.65;
+  margin-top:0;
+}
+/* Wide key spans 2 cols */
+.kb-key.wide-key{
+  grid-column:span 2;
+}
+
+
+
+/* MODE TOGGLE BUTTON — top right of screen */
+.mode-toggle-btn{
+  position:fixed;top:18px;right:32px;
+  z-index:200;
+  border:2px solid var(--white);
+  background:transparent;
+  color:var(--white);
+  font-family:var(--font);
+  font-size:20px;
+  font-weight:700;
+  padding:6px 18px;
+  cursor:pointer;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  transition:background .15s,color .15s,border-color .15s;
+  pointer-events:all;
+}
+.mode-toggle-btn:hover{
+  background:var(--white);
+  color:var(--bg);
+}
 </style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <span class="logo">Latin <em>Sinotype</em></span>
-    <span class="header-hint">/ stroke-based type input</span>
-  </header>
-  <div id="main">
-    <div id="composer">
-      <div id="glyph-area">
-        <svg id="glyph-svg" width="168" height="196" viewBox="0 0 100 116"></svg>
-      </div>
-      <div id="stroke-seq"><span class="placeholder">press a stroke key…</span></div>
-      <div id="candidates">
-        <div class="section-label">candidates</div>
-        <div id="cand-list"><div class="no-cand">—</div></div>
-      </div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-links">
+    <a href="#tool">TOOL</a><span class="nav-sep">/</span>
+    <a href="#how-to-use">HOW TO USE</a><span class="nav-sep">/</span>
+    <a href="#key-map">KEY MAP</a><span class="nav-sep">/</span>
+    <a href="#alphabet">ALPHABET</a>
+  </div>
+</nav>
+<button class="mode-toggle-btn" id="mode-toggle" onclick="toggleMode()" title="Toggle light/dark mode">LIGHT</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">Latin<br>Sinotype</div>
+  <p class="hero-sub">This system is a stroke-based typing interface that reimagines the Latin alphabet as a set of constructed forms rather than fixed keys. Instead of typing letters directly, users input sequences of strokes. The system compares these inputs against predefined stroke orders for each letter (A–Z), predicts the closest match, and visually builds the letter in real time within a preview canvas.</p>
+</div>
+
+<!-- ESOTERIC TYPESETTING TOOL intro -->
+<div class="esoteric-section">
+  <div class="esoteric-title">Esoteric Typesetting Tool</div>
+  <p class="esoteric-body">The tool operates at the intersection of typesetting and esoteric coding, where letterforms are not predefined but executed as sequences of strokes. By treating typographic construction as a rule-based system, it transforms writing into a form of encoding—one that oscillates between legibility and abstraction.</p>
+  <a href="#tool" class="cta-btn">Try the Tool ↓</a>
+</div>
+
+<!-- HOW TO USE -->
+<div class="page-section" id="how-to-use">
+  <div class="sec-title">How to Use</div>
+  <div class="how-grid">
+    <div class="how-cell">
+      <div class="how-num">01</div>
+      <div class="how-title">Press stroke keys to build a letter</div>
+      <p class="how-body">Keys <strong>1 2 3 4 5 6 7</strong> each map to one of 7 primitive stroke types — vertical, horizontal, two diagonals, and three arc types. Press them in any combination. Each keypress adds a stroke to the active glyph cell, drawn instantly in its assigned color. Order does not matter, only which strokes you've entered.</p>
     </div>
-    <div id="output-area">
-      <div class="section-label out">composed text</div>
-      <div id="text-line"><div id="cursor"></div></div>
+    <div class="how-cell">
+      <div class="how-num">02</div>
+      <div class="how-title">Watch candidates update live</div>
+      <p class="how-body">As you enter strokes, a dropdown candidate list appears below the input area, updating in real time. It shows up to 9 matching letters. The closest match is highlighted in blue. Ghost strokes in the glyph preview show what's still needed to complete the selected letter.</p>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">03</div>
+      <div class="how-title">Commit a letter</div>
+      <p class="how-body">Press <strong>Space</strong> or <strong>Enter</strong> to commit the highlighted candidate. Use <strong>+</strong> and <strong>−</strong> to navigate candidates, or press <strong>↵ Enter</strong> to commit the highlighted one. The letter is added to your text output on the right.</p>
+    </div>
+    <div class="how-cell">
+      <div class="how-num">04</div>
+      <div class="how-title">Build words and sentences</div>
+      <p class="how-body">Press <strong>*</strong> with no strokes entered to insert a word gap. Use <strong>Backspace</strong> to remove the last stroke, or delete the last committed letter. Repeat letter by letter to compose full words and sentences in the output field.</p>
     </div>
   </div>
-  <div id="keybar"></div>
 </div>
+
+<!-- STROKE KEYS -->
+<div class="page-section" id="key-map">
+  <div class="sec-title">Stroke Keys</div>
+  <div class="keys-grid" id="keys-grid"></div>
+</div>
+
+<!-- SHORTCUTS -->
+<div class="page-section">
+  <div class="sec-title">Shortcuts</div>
+  <div class="shortcuts-list">
+    <div class="shortcut-row">
+      <div class="shortcut-key-box"><span>+</span></div>
+      <div class="shortcut-desc">navigate up through candidates</div>
+    </div>
+    <div class="shortcut-row">
+      <div class="shortcut-key-box"><span>−</span></div>
+      <div class="shortcut-desc">navigate down through candidates</div>
+    </div>
+    <div class="shortcut-row">
+      <div class="shortcut-key-box"><span>*</span></div>
+      <div class="shortcut-desc">commit selected candidate — insert a space if no strokes entered</div>
+    </div>
+    <div class="shortcut-row">
+      <div class="shortcut-key-box"><span>↵ Enter</span></div>
+      <div class="shortcut-desc">commit selected candidate</div>
+    </div>
+    <div class="shortcut-row">
+      <div class="shortcut-key-box"><span>⌫ Backspace</span></div>
+      <div class="shortcut-desc">remove last stroke — delete last committed letter</div>
+    </div>
+  </div>
+</div>
+
+<!-- ALPHABET -->
+<div class="page-section" id="alphabet">
+  <div class="sec-title">Alphabet</div>
+  <p class="alpha-intro">To better understand the structure of the Latin alphabet, each letter is broken down into its fundamental strokes and highlighted in different colors. Color-coding isolates recurring elements and reveals how they combine to form distinct letterforms.</p>
+  <div class="alpha-grid" id="alpha-grid"></div>
+</div>
+
+<!-- TYPESETTING TOOL -->
+<div class="page-section" id="tool">
+  <div class="sec-title">Typesetting Tool</div>
+  <div class="tool-with-keyboard">
+  <div class="tool-box" style="flex:1;min-width:0;">
+    <div class="tool-inner">
+
+      <!-- Left: composer -->
+      <div class="tool-left">
+        <!-- Glyph preview -->
+        <div class="glyph-wrap">
+          <svg id="glyph-svg" width="220" height="252" viewBox="0 0 100 116"></svg>
+        </div>
+        <!-- Stroke input + IME dropdown -->
+        <div class="stroke-input-row">
+          <div class="stroke-input-bar" id="stroke-seq">
+            <span class="stroke-input-empty">press number keys in sequence…</span>
+          </div>
+          <!-- IME dropdown panel -->
+          <div class="ime-dropdown" id="ime-dropdown"></div>
+        </div>
+      </div>
+
+      <!-- Right: output -->
+      <div class="tool-right">
+        <div class="tool-right-header">composed text</div>
+        <div class="output-canvas" id="text-line">
+          <div id="cursor"></div>
+        </div>
+        <div class="tool-bottom">
+          <span class="tool-hint"><span>1–7</span>stroke keys</span>
+          <span class="tool-hint"><span>+ / −</span>navigate</span>
+          <span class="tool-hint"><span>* / ↵</span>commit</span>
+          <span class="tool-hint"><span>⌫</span>undo</span>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /tool-box -->
+
+  <!-- KEYBOARD PANEL — LEFT side, exact Figma grid -->
+  <div class="keyboard-panel" id="keyboard-panel">
+    <div class="kb-grid" id="kb-grid"></div>
+  </div>
+
+  </div><!-- /tool-with-keyboard -->
+</div>
+
+
+<!-- DOWNLOAD EXTENSION -->
+<div class="page-section" id="download" style="text-align:center;padding:120px 80px;">
+  <div class="sec-title">Download Extension</div>
+  <p style="font-size:48px;line-height:1.35;max-width:1000px;margin:0 auto 60px;">
+    Use Latin Sinotype anywhere in Chrome — in search bars, Google Docs, text fields, anywhere you type. The extension intercepts your number keys and converts stroke sequences directly into letters inline.
+  </p>
+
+  <div style="display:inline-block;padding:0;margin-bottom:60px;text-align:left;max-width:900px;width:100%;">
+    <div style="font-size:36px;font-weight:700;margin-bottom:40px;text-transform:uppercase;letter-spacing:.08em;">Installation</div>
+    <div style="display:flex;flex-direction:column;gap:28px;">
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <span class="download-step-num" style="font-size:64px;font-weight:700;line-height:1;min-width:60px;">1</span>
+        <span style="font-size:36px;line-height:1.4;">Download the <strong>.zip</strong> file below</span>
+      </div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <span class="download-step-num" style="font-size:64px;font-weight:700;line-height:1;min-width:60px;">2</span>
+        <span style="font-size:36px;line-height:1.4;">Open Chrome and go to <strong>chrome://extensions</strong></span>
+      </div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <span class="download-step-num" style="font-size:64px;font-weight:700;line-height:1;min-width:60px;">3</span>
+        <span style="font-size:36px;line-height:1.4;">Enable <strong>Developer Mode</strong> (toggle top-right)</span>
+      </div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <span class="download-step-num" style="font-size:64px;font-weight:700;line-height:1;min-width:60px;">4</span>
+        <span style="font-size:36px;line-height:1.4;">Unzip the file, then click <strong>Load unpacked</strong> and select the <strong>sinotype-extension</strong> folder</span>
+      </div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <span class="download-step-num" style="font-size:64px;font-weight:700;line-height:1;min-width:60px;">5</span>
+        <span style="font-size:36px;line-height:1.4;">Click the <strong>LS</strong> icon in your toolbar to activate on any page</span>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <a href="data:application/zip;base64,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" download="sinotype-extension.zip" class="cta-btn" style="font-size:48px;padding:20px 60px;">
+    Download Chrome Extension ↓
+  </a>
+</div>
+
+<!-- COLOPHON -->
+<div class="colophon">
+  <div class="colophon-title">Colophon</div>
+  <div class="colophon-body">
+    Design &amp; code: Julie Yeung<br>
+    Advisor: Andrew Leclair<br><br>
+    Typeface: Receipt<br><br>
+    Currents: T Y P E S E T T I N G<br>
+    Spring 2026
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════
-   GEOMETRY MODEL
-   All letters defined as named strokes.
-   Each stroke = { type, d }  where d is an SVG path
-   in a 100 × 116 viewBox.
-   Guides: cap=8  xh=38  base=90  desc=110
-   The SAME path is used at every size — viewBox scaling
-   handles all resizing, so preview === output always.
+   LATIN SINOTYPE — ordered stroke input engine
+   Keys 1-0 map to 10 stroke types.
+   Each letter has a FIXED ordered sequence.
+   Input must match the sequence prefix exactly.
+   Matches = letters whose sequence STARTS WITH the current input.
+   Max 3 candidates shown at once.
 ═══════════════════════════════════════════════════ */
 const CAP=8, XH=38, BASE=90, DESC=110;
 
-/* ── STROKE TYPE COLORS ── */
-const TYPE_COLOR = {
-  vertical:   '#2563eb',  // blue
-  horizontal: '#16a34a',  // green
-  diag_l:     '#9333ea',  // purple
-  diag_r:     '#dc2626',  // red
-  arc_left:   '#ea580c',  // orange   (open-left arc: C, left of O/D/G)
-  arc_right:  '#0891b2',  // cyan     (open-right arc: right of O/D/B bumps)
-  arc_top:    '#ca8a04',  // amber    (arch: n,m,h,u top)
-  arc_bottom: '#be185d',  // pink     (bowl bottom: u, j foot)
-  dot:        '#65a30d',  // lime
-  descender:  '#7c3aed',  // violet
+const TYPE_COLOR={
+  vertical:'#2563eb', horizontal:'#16a34a',
+  diag_l:'#9333ea',   diag_r:'#dc2626',
+  arc_left:'#ea580c', arc_right:'#0891b2',
+  arc_top:'#ca8a04',  arc_bottom:'#be185d',
+  dot:'#65a30d',      descender:'#7c3aed',
 };
 
-/* ── KEY MAP ── */
-const KEY_MAP = [
-  {key:'q', type:'vertical',   label:'vertical'},
-  {key:'w', type:'horizontal', label:'horiz'},
-  {key:'e', type:'diag_l',     label:'diag ↘'},
-  {key:'r', type:'diag_r',     label:'diag ↙'},
-  {key:'t', type:'arc_left',   label:'arc ('},
-  {key:'y', type:'arc_right',  label:'arc )'},
-  {key:'u', type:'arc_top',    label:'arch ∩'},
-  {key:'i', type:'dot',        label:'dot'},
-  {key:'o', type:'descender',  label:'descend'},
-  {key:'p', type:'arc_bottom', label:'arc ∪'},
+/* ── NUMBER KEY → STROKE TYPE MAP ── */
+const KEY_MAP=[
+  {key:'1', type:'vertical',   sym:'|',  label:'vertical'},
+  {key:'2', type:'horizontal', sym:'—',  label:'horizontal'},
+  {key:'3', type:'diag_l',     sym:'╲',  label:'diag ↘'},
+  {key:'4', type:'diag_r',     sym:'╱',  label:'diag ↙'},
+  {key:'5', type:'arc_left',   sym:'(',  label:'arc ('},
+  {key:'6', type:'arc_right',  sym:')',  label:'arc )'},
+  {key:'7', type:'arc_bottom', sym:'∪',  label:'arc ∪'},
 ];
-const TYPE_FOR_KEY={}, KEY_FOR_TYPE={}, LABEL_FOR_TYPE={};
+const TYPE_FOR_KEY={}, KEY_FOR_TYPE={}, SYM_FOR_TYPE={}, NUM_FOR_TYPE={};
 KEY_MAP.forEach(m=>{
   TYPE_FOR_KEY[m.key]=m.type;
-  KEY_FOR_TYPE[m.type]=m.key.toUpperCase();
-  LABEL_FOR_TYPE[m.type]=m.label;
+  KEY_FOR_TYPE[m.type]=m.key;
+  SYM_FOR_TYPE[m.type]=m.sym;
+  NUM_FOR_TYPE[m.type]=m.key;
 });
 
-/* ═══════════════════════════════════════════════════
-   LETTER RECIPES
-   Each stroke has: type (for key matching) + d (SVG path in 100×116 space)
-   Helvetica-inspired sans-serif proportions.
-   stroke-width in the path space ≈ 7 (scales with viewBox)
-═══════════════════════════════════════════════════ */
+/* ── ORDERED STROKE RECIPES ──
+   Each letter: array of {type, d} in strict drawing order.
+   No two letters share the same complete ordered sequence.
+   Sequence = the number keys you type in order to form the letter.
+   A  → 4,3,2    (right-diag, left-diag, crossbar)
+   B  → 1,2,6,2,6,2  (stem, top-bar, upper-bump, mid-bar, lower-bump, base-bar)
+   C  → 5        (single left arc)
+   D  → 1,2,6,2  (stem, top-cap, right-curve, base-cap)
+   E  → 1,2,2,2  (stem, top, mid, base)
+   F  → 1,2,2    (stem, top, mid — no base)
+   G  → 5,2,1    (arc, shelf, spur)
+   H  → 1,1,2    (left-stem, right-stem, crossbar)
+   I  → 2,1,2    (top-serif, stem, base-serif)
+   J  → 2,1,0    (top-serif, stem, foot)
+   K  → 1,3,4    (stem, upper-diag, lower-diag)
+   L  → 1,2      (stem, base)
+   M  → 1,3,4,1  (left-stem, left-V, right-V, right-stem)
+   N  → 1,3,1    (left-stem, diagonal, right-stem)
+   O  → 5,6      (left-arc, right-arc)
+   P  → 1,2,6,2  differs from D by omitting the base-cap: 1,2,6,2 → unique by stroke count match at position 3 being arc_right vs D
+        Actually make P: 1,2,2,6  (stem, top, mid, bump)
+   Q  → 6,5,3    (right-arc, left-arc, tail) — unique reverse of O+tail
+   R  → 1,2,2,6,3 (stem, top, mid, bump, leg)
+   S  → 5,6      same as O — need unique. S → 6,5  (upper-right-arc, lower-left-arc) reversed
+   T  → 2,1      (crossbar first, then stem)
+   U  → 1,1,0    (left-stem, right-stem, bowl)
+   V  → 4,3      (right-diag down, left-diag up)
+   W  → 4,3,4,3  (four diagonals alternating)
+   X  → 3,4      (left-diag, right-diag)
+   Y  → 4,3,1    (right upper, left upper, stem down)
+   Z  → 2,3,2    (top-bar, diagonal, base-bar)
+*/
 
-// Helper: cubic bezier string
-const cb=(x1,y1,c1x,c1y,c2x,c2y,x2,y2)=>
-  `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
-
-// Elliptical arc helper: arc from (x1,y1) to (x2,y2) with rx,ry
-const arc=(x1,y1,x2,y2,rx,ry,sweep=1,large=0)=>
-  `M${x1},${y1} A${rx},${ry} 0 ${large},${sweep} ${x2},${y2}`;
-
-// Full ellipse as two arcs (top half + bottom half)
-const ellipse=(cx,cy,rx,ry)=>
-  `M${cx-rx},${cy} A${rx},${ry} 0 1,1 ${cx+rx},${cy} A${rx},${ry} 0 1,1 ${cx-rx},${cy}`;
-
-const R = {
+const R={
   A:[
     {type:'diag_r', d:`M50,${CAP} L8,${BASE}`},
     {type:'diag_l', d:`M50,${CAP} L92,${BASE}`},
-    {type:'horizontal', d:`M22,65 L78,65`},
+    {type:'horizontal',d:`M22,65 L78,65`},
   ],
   B:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
-    {type:'horizontal', d:`M18,49 L55,49`},
-    {type:'horizontal', d:`M18,${BASE} L52,${BASE}`},
-    {type:'arc_right',  d:`M52,${CAP} C78,${CAP} 78,49 52,49`},
-    {type:'arc_right',  d:`M55,49 C84,49 84,${BASE} 52,${BASE}`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L52,${CAP}`},
+    {type:'arc_right', d:`M52,${CAP} C78,${CAP} 78,49 52,49`},
+    {type:'horizontal',d:`M18,49 L55,49`},
+    {type:'arc_right', d:`M55,49 C84,49 84,${BASE} 52,${BASE}`},
+    {type:'horizontal',d:`M18,${BASE} L52,${BASE}`},
   ],
   C:[
-    {type:'arc_left',   d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,76`},
+    {type:'arc_left',d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,76`},
   ],
   D:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L48,${CAP}`},
-    {type:'horizontal', d:`M18,${BASE} L48,${BASE}`},
-    {type:'arc_right',  d:`M48,${CAP} C82,${CAP} 82,${BASE} 48,${BASE}`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L48,${CAP}`},
+    {type:'arc_right', d:`M48,${CAP} C82,${CAP} 82,${BASE} 48,${BASE}`},
+    {type:'horizontal',d:`M18,${BASE} L48,${BASE}`},
   ],
   E:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L76,${CAP}`},
-    {type:'horizontal', d:`M18,49 L66,49`},
-    {type:'horizontal', d:`M18,${BASE} L76,${BASE}`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L76,${CAP}`},
+    {type:'horizontal',d:`M18,49 L66,49`},
+    {type:'horizontal',d:`M18,${BASE} L76,${BASE}`},
   ],
   F:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L76,${CAP}`},
-    {type:'horizontal', d:`M18,49 L66,49`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L76,${CAP}`},
+    {type:'horizontal',d:`M18,49 L66,49`},
   ],
   G:[
-    {type:'arc_left',   d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,74`},
-    {type:'horizontal', d:`M55,49 L76,49`},
-    {type:'vertical',   d:`M76,49 L76,74`},
+    {type:'arc_left',  d:`M76,22 C76,10 62,${CAP} 50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE} C62,${BASE} 76,85 76,74`},
+    {type:'horizontal',d:`M55,49 L76,49`},
+    {type:'vertical',  d:`M76,49 L76,74`},
   ],
   H:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'vertical',   d:`M82,${CAP} L82,${BASE}`},
-    {type:'horizontal', d:`M18,49 L82,49`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'vertical',  d:`M82,${CAP} L82,${BASE}`},
+    {type:'horizontal',d:`M18,49 L82,49`},
   ],
   I:[
-    {type:'vertical',   d:`M50,${CAP} L50,${BASE}`},
-    {type:'horizontal', d:`M28,${CAP} L72,${CAP}`},
-    {type:'horizontal', d:`M28,${BASE} L72,${BASE}`},
+    {type:'horizontal',d:`M28,${CAP} L72,${CAP}`},
+    {type:'vertical',  d:`M50,${CAP} L50,${BASE}`},
+    {type:'horizontal',d:`M28,${BASE} L72,${BASE}`},
   ],
   J:[
     {type:'horizontal', d:`M30,${CAP} L72,${CAP}`},
@@ -218,54 +698,54 @@ const R = {
     {type:'arc_bottom', d:`M64,78 C64,${BASE} 50,${BASE} 38,${BASE} C28,${BASE} 20,92 20,84`},
   ],
   K:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'diag_l',     d:`M18,49 L76,${CAP}`},
-    {type:'diag_r',     d:`M18,49 L80,${BASE}`},
+    {type:'vertical',d:`M18,${CAP} L18,${BASE}`},
+    {type:'diag_l',  d:`M18,49 L76,${CAP}`},
+    {type:'diag_r',  d:`M18,49 L80,${BASE}`},
   ],
   L:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${BASE} L80,${BASE}`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${BASE} L80,${BASE}`},
   ],
   M:[
-    {type:'vertical',   d:`M10,${CAP} L10,${BASE}`},
-    {type:'diag_l',     d:`M10,${CAP} L50,60`},
-    {type:'diag_r',     d:`M50,60 L90,${CAP}`},
-    {type:'vertical',   d:`M90,${CAP} L90,${BASE}`},
+    {type:'vertical',d:`M10,${CAP} L10,${BASE}`},
+    {type:'diag_l',  d:`M10,${CAP} L50,60`},
+    {type:'diag_r',  d:`M50,60 L90,${CAP}`},
+    {type:'vertical',d:`M90,${CAP} L90,${BASE}`},
   ],
   N:[
-    {type:'vertical',   d:`M15,${CAP} L15,${BASE}`},
-    {type:'diag_l',     d:`M15,${CAP} L85,${BASE}`},
-    {type:'vertical',   d:`M85,${CAP} L85,${BASE}`},
+    {type:'vertical',d:`M15,${CAP} L15,${BASE}`},
+    {type:'diag_l',  d:`M15,${CAP} L85,${BASE}`},
+    {type:'vertical',d:`M85,${CAP} L85,${BASE}`},
   ],
   O:[
-    {type:'arc_left',   d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
-    {type:'arc_right',  d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
+    {type:'arc_left', d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
+    {type:'arc_right',d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
   ],
   P:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
-    {type:'horizontal', d:`M18,49 L52,49`},
-    {type:'arc_right',  d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L52,${CAP}`},
+    {type:'horizontal',d:`M18,49 L52,49`},
+    {type:'arc_right', d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
   ],
   Q:[
-    {type:'arc_left',   d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
-    {type:'arc_right',  d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
-    {type:'diag_l',     d:`M56,74 L82,${BASE}`},
+    {type:'arc_right',d:`M50,${CAP} C72,${CAP} 86,26 86,49 C86,72 72,${BASE} 50,${BASE}`},
+    {type:'arc_left', d:`M50,${CAP} C28,${CAP} 14,26 14,49 C14,72 28,${BASE} 50,${BASE}`},
+    {type:'diag_l',   d:`M56,74 L82,${BASE}`},
   ],
   R:[
-    {type:'vertical',   d:`M18,${CAP} L18,${BASE}`},
-    {type:'horizontal', d:`M18,${CAP} L52,${CAP}`},
-    {type:'horizontal', d:`M18,49 L52,49`},
-    {type:'arc_right',  d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
-    {type:'diag_l',     d:`M46,49 L80,${BASE}`},
+    {type:'vertical',  d:`M18,${CAP} L18,${BASE}`},
+    {type:'horizontal',d:`M18,${CAP} L52,${CAP}`},
+    {type:'horizontal',d:`M18,49 L52,49`},
+    {type:'arc_right', d:`M52,${CAP} C80,${CAP} 80,49 52,49`},
+    {type:'diag_l',    d:`M46,49 L80,${BASE}`},
   ],
   S:[
-    {type:'arc_left',   d:`M72,20 C72,11 62,${CAP} 50,${CAP} C34,${CAP} 20,18 20,32 C20,44 32,49 50,49`},
-    {type:'arc_right',  d:`M50,49 C68,49 80,54 80,68 C80,82 66,${BASE} 50,${BASE} C38,${BASE} 28,85 28,76`},
+    {type:'arc_right',d:`M50,49 C68,49 80,54 80,68 C80,82 66,${BASE} 50,${BASE} C38,${BASE} 28,85 28,76`},
+    {type:'arc_left', d:`M72,20 C72,11 62,${CAP} 50,${CAP} C34,${CAP} 20,18 20,32 C20,44 32,49 50,49`},
   ],
   T:[
-    {type:'horizontal', d:`M10,${CAP} L90,${CAP}`},
-    {type:'vertical',   d:`M50,${CAP} L50,${BASE}`},
+    {type:'horizontal',d:`M10,${CAP} L90,${CAP}`},
+    {type:'vertical',  d:`M50,${CAP} L50,${BASE}`},
   ],
   U:[
     {type:'vertical',   d:`M18,${CAP} L18,76`},
@@ -273,42 +753,40 @@ const R = {
     {type:'arc_bottom', d:`M18,76 C18,${BASE} 82,${BASE} 82,76`},
   ],
   V:[
-    {type:'diag_r',     d:`M8,${CAP} L50,${BASE}`},
-    {type:'diag_l',     d:`M50,${BASE} L92,${CAP}`},
+    {type:'diag_r',d:`M8,${CAP} L50,${BASE}`},
+    {type:'diag_l',d:`M50,${BASE} L92,${CAP}`},
   ],
   W:[
-    {type:'diag_r',     d:`M6,${CAP} L28,${BASE}`},
-    {type:'diag_l',     d:`M28,${BASE} L50,58`},
-    {type:'diag_r',     d:`M50,58 L72,${BASE}`},
-    {type:'diag_l',     d:`M72,${BASE} L94,${CAP}`},
+    {type:'diag_r',d:`M6,${CAP} L28,${BASE}`},
+    {type:'diag_l',d:`M28,${BASE} L50,58`},
+    {type:'diag_r',d:`M50,58 L72,${BASE}`},
+    {type:'diag_l',d:`M72,${BASE} L94,${CAP}`},
   ],
   X:[
-    {type:'diag_l',     d:`M8,${CAP} L92,${BASE}`},
-    {type:'diag_r',     d:`M92,${CAP} L8,${BASE}`},
+    {type:'diag_l',d:`M8,${CAP} L92,${BASE}`},
+    {type:'diag_r',d:`M92,${CAP} L8,${BASE}`},
   ],
   Y:[
-    {type:'diag_r',     d:`M8,${CAP} L50,54`},
-    {type:'diag_l',     d:`M50,54 L92,${CAP}`},
-    {type:'vertical',   d:`M50,54 L50,${BASE}`},
+    {type:'diag_r',d:`M8,${CAP} L50,54`},
+    {type:'diag_l',d:`M50,54 L92,${CAP}`},
+    {type:'vertical',d:`M50,54 L50,${BASE}`},
   ],
   Z:[
-    {type:'horizontal', d:`M12,${CAP} L88,${CAP}`},
-    {type:'diag_l',     d:`M88,${CAP} L12,${BASE}`},
-    {type:'horizontal', d:`M12,${BASE} L88,${BASE}`},
+    {type:'horizontal',d:`M12,${CAP} L88,${CAP}`},
+    {type:'diag_l',    d:`M88,${CAP} L12,${BASE}`},
+    {type:'horizontal',d:`M12,${BASE} L88,${BASE}`},
   ],
 };
 
-/* ── STATE ── */
-let inputTypes = [];
-let committed  = [];
-let arrowSel   = 0;
+/* Build ordered sequence string for each letter */
+function seqOf(letter){ return R[letter].map(s=>KEY_FOR_TYPE[s.type]).join(''); }
+const SEQUENCES={};
+Object.keys(R).forEach(l=>{ SEQUENCES[l]=seqOf(l); });
 
-/* ═══════════════════════════════════════════════════
-   SVG RENDERING
-   Single render function used for BOTH preview and output.
-   size = viewBox units width (always 100), rendered via
-   SVG width/height attributes for actual pixel size.
-═══════════════════════════════════════════════════ */
+/* ── STATE ── */
+let inputSeq='', committed=[], arrowSel=0;
+
+/* ── SVG UTILS ── */
 const NS='http://www.w3.org/2000/svg';
 function el(tag,attrs,parent){
   const e=document.createElementNS(NS,tag);
@@ -317,304 +795,391 @@ function el(tag,attrs,parent){
   return e;
 }
 
-/* Draw guides into an svg element (guides in 100×116 space) */
 function drawGuides(svg){
   svg.innerHTML='';
-  el('rect',{x:0,y:0,width:100,height:116,fill:'#fff'},svg);
-  [[0,'#f4f4f4',true],[CAP,'#ebebeb',true],[XH,'#ebebeb',true],
-   [BASE,'#d4d4d4',false],[DESC,'#ebebeb',true]].forEach(([y,c,dash])=>{
-    const a={x1:0,y1:y,x2:100,y2:y,stroke:c,'stroke-width':y===BASE?0.6:0.4};
+  const isLt=document.documentElement.classList.contains('light');
+  const glyphBg=isLt?'transparent':'#000';
+  const guidCol=isLt?'#ccc':'#1a1a1a';
+  const baseCol=isLt?'#999':'#333';
+  el('rect',{x:0,y:0,width:100,height:116,fill:glyphBg},svg);
+  [[0,guidCol,true],[CAP,guidCol,true],[XH,guidCol,true],
+   [BASE,baseCol,false],[DESC,guidCol,true]].forEach(([y,c,dash])=>{
+    const a={x1:0,y1:y,x2:100,y2:y,stroke:c,'stroke-width':y===BASE?0.7:0.4};
     if(dash)a['stroke-dasharray']='1.5 2.5';
     el('line',a,svg);
   });
-  [['cap',CAP],['x',XH],['base',BASE]].forEach(([lbl,y])=>{
-    const t=el('text',{x:101,y,fill:'#ccc','font-size':3,'dominant-baseline':'middle',
-      'font-family':'DM Mono,monospace'},svg);
-    t.textContent=lbl;
-  });
 }
 
-/* Render a letter's strokes onto an svg.
-   strokes: array of {type, d, ghost?}
-   sw: stroke-width in path units */
-function paintStrokes(svg, strokes, sw){
+function paintStrokes(svg,strokes,sw){
   strokes.forEach(({type,d,ghost,animate})=>{
-    const color = ghost ? '#e0e0e0' : TYPE_COLOR[type] || '#111';
+    if(!d)return;
+    const color=ghost?'#1a1a1a':TYPE_COLOR[type]||'#fff';
     const p=el('path',{d,fill:'none',stroke:color,
       'stroke-width':sw,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
     if(animate){
       let len=60;
       try{const t=el('path',{d},svg);len=t.getTotalLength()||60;t.remove();}catch(e){}
-      p.style.strokeDasharray=len;
-      p.style.strokeDashoffset=len;
+      p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
       p.style.transition='stroke-dashoffset 0.22s ease-out';
       requestAnimationFrame(()=>p.style.strokeDashoffset=0);
     }
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   MAIN GLYPH PREVIEW
-   Shows top (or arrow-selected) candidate's recipe.
-   Entered stroke types → solid colored.
-   Remaining strokes → ghost gray.
-═══════════════════════════════════════════════════ */
+/* ── CANDIDATE MATCHING — ordered prefix match ── */
+function getCandidates(seq){
+  if(!seq.length)return[];
+  const out=[];
+  for(const[letter,fullSeq]of Object.entries(SEQUENCES)){
+    if(fullSeq.startsWith(seq)){
+      out.push({
+        letter,
+        recipe:R[letter],
+        remaining:fullSeq.slice(seq.length),
+        full:fullSeq,
+        exact:fullSeq===seq
+      });
+    }
+  }
+  // Sort: exact first, then by remaining length, then alpha
+  out.sort((a,b)=>a.remaining.length-b.remaining.length||a.letter.localeCompare(b.letter));
+  return out.slice(0,3); // max 3
+}
+
+/* ── GLYPH PREVIEW ── */
 function renderGlyph(){
   const svg=document.getElementById('glyph-svg');
   drawGuides(svg);
-  if(!inputTypes.length)return;
+  if(!inputSeq.length)return;
 
-  const cands=getCandidates(inputTypes);
-  const recipe=cands.length ? (cands[arrowSel]||cands[0]).recipe : null;
+  const cands=getCandidates(inputSeq);
+  const recipe=cands.length?(cands[arrowSel]||cands[0]).recipe:null;
 
   if(!recipe){
-    // No candidate: draw generic placeholder strokes for entered types
-    inputTypes.forEach((type,i)=>{
-      const placeholder={
-        vertical:  `M50,${CAP} L50,${BASE}`,
-        horizontal:`M15,49 L85,49`,
-        diag_l:    `M10,${CAP} L90,${BASE}`,
-        diag_r:    `M90,${CAP} L10,${BASE}`,
-        arc_left:  `M70,20 C70,${CAP} 30,${CAP} 30,49 C30,${BASE} 70,${BASE} 70,76`,
-        arc_right: `M30,20 C30,${CAP} 70,${CAP} 70,49 C70,${BASE} 30,${BASE} 30,76`,
-        arc_top:   `M15,${BASE} C15,30 85,30 85,${BASE}`,
-        arc_bottom:`M15,60 C15,${BASE} 85,${BASE} 85,60`,
-        dot:       null,
-        descender: `M50,${BASE} L50,${DESC}`,
-      }[type];
-      if(placeholder){
-        el('path',{d:placeholder,fill:'none',stroke:TYPE_COLOR[type]||'#111',
-          'stroke-width':6.5,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
-      }
+    // No candidate match — draw all entered strokes with default centered positions
+    const positions={
+      vertical:`M50,${CAP} L50,${BASE}`,
+      horizontal:`M10,49 L90,49`,
+      diag_l:`M10,${CAP} L90,${BASE}`,
+      diag_r:`M90,${CAP} L10,${BASE}`,
+      arc_left:`M75,${CAP} C75,${CAP} 15,${CAP} 15,49 C15,${BASE} 75,${BASE} 75,${BASE}`,
+      arc_right:`M25,${CAP} C25,${CAP} 85,${CAP} 85,49 C85,${BASE} 25,${BASE} 25,${BASE}`,
+      arc_bottom:`M15,60 C15,${BASE} 85,${BASE} 85,60`,
+    };
+    inputSeq.split('').forEach(k=>{
+      const type=TYPE_FOR_KEY[k];
+      const d=type?positions[type]:null;
+      const col=type?(TYPE_COLOR[type]||'#fff'):'#fff';
+      if(d) el('path',{d,fill:'none',stroke:col,'stroke-width':9,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
     });
     return;
   }
 
-  // Consume input types against recipe slots (greedy, type-matched)
-  const pool=recipe.map((s,i)=>({...s,i,used:false}));
-  const consumed=new Set();
-  inputTypes.forEach(type=>{
-    const slot=pool.find(p=>!p.used&&p.type===type);
-    if(slot){slot.used=true;consumed.add(slot.i);}
-  });
-
-  // Ghosts first (so solid strokes paint on top)
-  const ghosts=recipe
-    .map((s,i)=>(!consumed.has(i)?{...s,ghost:true}:null))
-    .filter(Boolean);
-  paintStrokes(svg,ghosts,6.5);
-
-  // Solid confirmed strokes (animate last one)
-  let solidIdx=0;
+  // How many strokes have been entered
+  const entered=inputSeq.length;
   recipe.forEach((s,i)=>{
-    if(!consumed.has(i))return;
-    const isLast=(solidIdx===consumed.size-1);
-    paintStrokes(svg,[{...s,animate:isLast}],6.5);
-    solidIdx++;
+    if(i<entered){
+      // confirmed stroke — colored
+      paintStrokes(svg,[{...s,animate:i===entered-1}],9);
+    } else {
+      // ghost stroke
+      el('path',{d:s.d,fill:'none',stroke:'#1a1a1a','stroke-width':9,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+    }
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   CANDIDATE MATCHING
-═══════════════════════════════════════════════════ */
-function getCandidates(types){
-  if(!types.length)return[];
-  const want={};
-  types.forEach(t=>{want[t]=(want[t]||0)+1;});
-  const out=[];
-  for(const[letter,recipe]of Object.entries(R)){
-    const have={};
-    recipe.forEach(s=>{have[s.type]=(have[s.type]||0)+1;});
-    let ok=true;
-    for(const[t,n]of Object.entries(want)){if((have[t]||0)<n){ok=false;break;}}
-    if(!ok)continue;
-    out.push({letter,recipe,missing:recipe.length-types.length});
+/* ── UPDATE IME DROPDOWN ── */
+function updateCandidates(resetSel=true){
+  if(resetSel)arrowSel=0;
+  const dropdown=document.getElementById('ime-dropdown');
+  const cands=getCandidates(inputSeq);
+  if(!cands.length){
+    dropdown.classList.remove('open');
+    dropdown.innerHTML='';
+    return;
   }
-  out.sort((a,b)=>a.missing-b.missing||a.letter.localeCompare(b.letter));
-  return out.slice(0,9);
+  arrowSel=Math.max(0,Math.min(arrowSel,cands.length-1));
+  dropdown.classList.add('open');
+  dropdown.innerHTML='';
+  cands.forEach((cand,idx)=>{
+    const item=document.createElement('div');
+    item.className='ime-item'+(idx===arrowSel?' ime-selected':'');
+    // Show remaining keys in sequence
+    const enteredKeys=cand.full.slice(0,inputSeq.length).split('').join(' ');
+    const remainKeys=cand.remaining.split('').join(' ');
+    item.innerHTML=`<span class="ime-item-num">${idx+1}</span>`+
+      `<span class="ime-item-letter">${cand.letter}</span>`+
+      `<span class="ime-item-keys">${enteredKeys}<span style="opacity:.4"> ${remainKeys}</span></span>`;
+    item.addEventListener('click',()=>commit(cand.letter));
+    dropdown.appendChild(item);
+  });
 }
 
-/* ═══════════════════════════════════════════════════
-   OUTPUT RENDERING
-   Each committed letter uses the same recipe paths,
-   rendered via viewBox scaling into a small cell.
-═══════════════════════════════════════════════════ */
-const OUT_PX_H=70; // output cell pixel height
-const OUT_PX_W=50; // output cell pixel width
+/* ── STROKE SEQUENCE DISPLAY ── */
+function updateSeq(){
+  const seqEl=document.getElementById('stroke-seq');
+  if(!inputSeq.length){
+    seqEl.innerHTML='<span class="stroke-input-empty">press number keys to begin…</span>';
+    return;
+  }
+  seqEl.innerHTML=inputSeq.split('').map(k=>{
+    const type=TYPE_FOR_KEY[k];
+    const col=type?TYPE_COLOR[type]:'#fff';
+    return `<span class="stroke-pill" style="border-color:${col};color:${col}">`+
+      `${k} <span style="opacity:.7">${type?SYM_FOR_TYPE[type]:''}</span></span>`;
+  }).join('');
+}
 
+/* ── OUTPUT ── */
+const OUT_H=56, OUT_W=40;
 function makeLetterSVG(letter){
-  const recipe=R[letter];
-  if(!recipe)return null;
+  const recipe=R[letter];if(!recipe)return null;
   const svg=document.createElementNS(NS,'svg');
-  svg.setAttribute('width',OUT_PX_W);
-  svg.setAttribute('height',OUT_PX_H);
-  // viewBox matches our path space exactly — no coordinate math needed
+  svg.setAttribute('width',OUT_W);svg.setAttribute('height',OUT_H);
   svg.setAttribute('viewBox','0 0 100 116');
-  // baseline guide
-  el('line',{x1:0,y1:BASE,x2:100,y2:BASE,stroke:'#e8e8e8','stroke-width':0.8},svg);
-  // draw all strokes at output weight
-  paintStrokes(svg,recipe,7);
+  el('rect',{x:0,y:0,width:100,height:116,fill:'#000'},svg);
+  el('line',{x1:0,y1:BASE,x2:100,y2:BASE,stroke:'#222','stroke-width':0.8},svg);
+  recipe.forEach(({d})=>{
+    if(!d)return;
+    el('path',{d,fill:'none',stroke:'#fff','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+  });
   return svg;
 }
-
 function renderOutput(){
   const wrap=document.getElementById('text-line');
   wrap.innerHTML='';
   committed.forEach(item=>{
-    if(item.type==='space'){
-      const sp=document.createElement('div');
-      sp.className='space-cell';
-      wrap.appendChild(sp);
-    } else {
-      const cell=document.createElement('div');
-      cell.className='letter-cell';
-      const svg=makeLetterSVG(item.letter);
-      if(svg)cell.appendChild(svg);
-      wrap.appendChild(cell);
-    }
+    if(item.type==='space'){const sp=document.createElement('div');sp.className='space-cell';wrap.appendChild(sp);}
+    else{const cell=document.createElement('div');cell.className='letter-cell';const svg=makeLetterSVG(item.letter);if(svg)cell.appendChild(svg);wrap.appendChild(cell);}
   });
-  const cur=document.createElement('div');
-  cur.id='cursor';
-  wrap.appendChild(cur);
+  const cur=document.createElement('div');cur.id='cursor';wrap.appendChild(cur);
 }
 
-/* ═══════════════════════════════════════════════════
-   STROKE SEQUENCE STRIP
-═══════════════════════════════════════════════════ */
-function updateSeq(){
-  const seqEl=document.getElementById('stroke-seq');
-  if(!inputTypes.length){
-    seqEl.innerHTML='<span class="placeholder">press a stroke key…</span>';
-    return;
-  }
-  seqEl.innerHTML=inputTypes.map(t=>{
-    const col=TYPE_COLOR[t]||'#111';
-    return `<span class="badge">
-      <span class="badge-key" style="color:${col}">${KEY_FOR_TYPE[t]||'?'}</span>
-      <span style="color:${col}">${LABEL_FOR_TYPE[t]||t}</span>
-    </span>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════════════════
-   CANDIDATE LIST
-═══════════════════════════════════════════════════ */
-function updateCandidates(resetSel=true){
-  if(resetSel)arrowSel=0;
-  const list=document.getElementById('cand-list');
-  const cands=getCandidates(inputTypes);
-  if(!cands.length){list.innerHTML='<div class="no-cand">no matches</div>';return;}
-  arrowSel=Math.max(0,Math.min(arrowSel,cands.length-1));
-  list.innerHTML='';
-  cands.forEach((c,i)=>{
-    const div=document.createElement('div');
-    div.className='cand-item'+(i===0?' top':'')+(i===arrowSel?' arrow':'');
-    const recipeKeys=c.recipe.map(s=>{
-      const col=i===0?'#999':TYPE_COLOR[s.type]||'#888';
-      return `<span style="color:${col}">${KEY_FOR_TYPE[s.type]||'?'}</span>`;
-    }).join(' ');
-    const status=c.missing===0?'complete ✓':`+${c.missing}`;
-    div.innerHTML=`
-      <span class="cand-num">${i+1}</span>
-      <span class="cand-glyph">${c.letter}</span>
-      <span class="cand-recipe">${recipeKeys}</span>
-      <span class="cand-status">${status}</span>`;
-    div.addEventListener('click',()=>commit(c.letter));
-    list.appendChild(div);
-  });
-}
-
-/* ═══════════════════════════════════════════════════
-   COMMIT / SPACE / BACKSPACE
-═══════════════════════════════════════════════════ */
+/* ── COMMIT / BACKSPACE ── */
 function commit(letter){
   committed.push({type:'letter',letter});
-  inputTypes=[];arrowSel=0;
+  inputSeq='';arrowSel=0;
+  document.getElementById('ime-dropdown').classList.remove('open');
   renderGlyph();updateSeq();updateCandidates();renderOutput();
 }
-function addSpace(){
-  committed.push({type:'space'});renderOutput();
-}
+function addSpace(){committed.push({type:'space'});renderOutput();}
 function backspace(){
-  if(inputTypes.length>0){inputTypes.pop();}
+  if(inputSeq.length>0){inputSeq=inputSeq.slice(0,-1);}
   else if(committed.length>0){committed.pop();renderOutput();}
   arrowSel=0;renderGlyph();updateSeq();updateCandidates();
 }
 
-/* ═══════════════════════════════════════════════════
-   KEYBOARD BAR
-═══════════════════════════════════════════════════ */
-function buildKeybar(){
-  const bar=document.getElementById('keybar');
-  KEY_MAP.forEach(m=>{
-    const col=TYPE_COLOR[m.type]||'#111';
-    const chip=document.createElement('div');
-    chip.className='kchip'; chip.id=`chip-${m.key}`;
-    chip.innerHTML=`<span class="kdot" style="background:${col}"></span><span class="kk">${m.key.toUpperCase()}</span><span class="ks">${m.label}</span>`;
-    bar.appendChild(chip);
-  });
-  const sep=document.createElement('div');
-  sep.className='kbar-sep';bar.appendChild(sep);
-  [{k:'1–9',l:'pick'},{k:'↑↓',l:'navigate'},{k:'SPC',l:'commit/space'},{k:'↵',l:'commit'},{k:'⌫',l:'undo'}].forEach(u=>{
-    const d=document.createElement('div');
-    d.className='kutil';
-    d.innerHTML=`<span class="kk">${u.k}</span><span>${u.l}</span>`;
-    bar.appendChild(d);
-  });
-}
-
-function flashKey(key){
-  const chip=document.getElementById(`chip-${key}`);
-  if(!chip)return;
-  const col=TYPE_COLOR[TYPE_FOR_KEY[key]]||'#111';
-  chip.style.background=col+'22';
-  chip.style.borderColor=col;
-  setTimeout(()=>{chip.style.background='';chip.style.borderColor='';},140);
-}
-
-/* ═══════════════════════════════════════════════════
-   KEYBOARD HANDLER
-═══════════════════════════════════════════════════ */
+/* ── KEYBOARD ── */
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
-  const key=e.key.toLowerCase();
-  if(TYPE_FOR_KEY[key]){
+  const key=e.key;
+
+  // Number keys 1-7 for strokes
+  if(/^[1-7]$/.test(key)){
     e.preventDefault();
-    inputTypes.push(TYPE_FOR_KEY[key]);
-    flashKey(key);renderGlyph();updateSeq();updateCandidates();
+    flashKey(`kbkey-${key}`);
+    inputSeq+=key;
+    renderGlyph();updateSeq();updateCandidates();
     return;
   }
-  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+  if(e.key==='-'||e.key==='+'){
     e.preventDefault();
-    const cands=getCandidates(inputTypes);if(!cands.length)return;
-    arrowSel=e.key==='ArrowDown'?Math.min(arrowSel+1,cands.length-1):Math.max(arrowSel-1,0);
-    updateCandidates(false);renderGlyph();
-    return;
+    flashKey(e.key==='+'?'util-plus':'util-minus');
+    const cands=getCandidates(inputSeq);if(!cands.length)return;
+    arrowSel=e.key==='+'?Math.max(arrowSel-1,0):Math.min(arrowSel+1,cands.length-1);
+    updateCandidates(false);renderGlyph();return;
   }
-  const n=parseInt(e.key);
-  if(n>=1&&n<=9){
+  if(e.key==='*'){
     e.preventDefault();
-    const cands=getCandidates(inputTypes);
-    if(cands[n-1])commit(cands[n-1].letter);
-    return;
-  }
-  if(e.key===' '){
-    e.preventDefault();
-    if(!inputTypes.length){addSpace();}
-    else{const c=getCandidates(inputTypes);if(c.length)commit((c[arrowSel]||c[0]).letter);}
+    flashKey('util-star');
+    if(!inputSeq.length)addSpace();
+    else{const c=getCandidates(inputSeq);if(c.length)commit((c[arrowSel]||c[0]).letter);}
     return;
   }
   if(e.key==='Enter'){
     e.preventDefault();
-    const c=getCandidates(inputTypes);
+    flashKey('util-enter');
+    const c=getCandidates(inputSeq);
     if(c.length)commit((c[arrowSel]||c[0]).letter);
     return;
   }
-  if(e.key==='Backspace'){e.preventDefault();backspace();return;}
+  if(e.key==='Backspace'){e.preventDefault();flashKey('util-back');backspace();return;}
 });
 
-/* ── INIT ── */
-buildKeybar();renderGlyph();updateSeq();updateCandidates();renderOutput();
+/* ═══════════════════════════════════
+   BUILD STATIC SECTIONS
+═══════════════════════════════════ */
+function buildKeysGrid(){
+  const grid=document.getElementById('keys-grid');
+  const swatchD={
+    vertical:`M16,3 L16,33`,horizontal:`M3,18 L29,18`,
+    diag_l:`M5,3 L27,33`,diag_r:`M27,3 L5,33`,
+    arc_left:`M24,5 C24,3 18,3 16,3 C9,3 4,10 4,18 C4,26 9,33 16,33 C18,33 24,33 24,31`,
+    arc_right:`M8,5 C8,3 14,3 16,3 C23,3 28,10 28,18 C28,26 23,33 16,33 C14,33 8,33 8,31`,
+    arc_top:`M4,28 C4,8 28,8 28,28`,arc_bottom:`M4,8 C4,28 28,28 28,8`,
+    descender:`M16,3 L16,22 C16,31 9,33 9,33`,dot:null,
+  };
+  KEY_MAP.forEach(m=>{
+    const col=TYPE_COLOR[m.type];
+    const cell=document.createElement('div');
+    cell.className='key-cell';
+    const num=document.createElement('div');
+    num.className='key-num';
+    num.textContent=m.key;
+    num.style.color=col;
+    const inner=document.createElement('div');
+    inner.className='key-inner';
+    inner.style.borderColor=col+'66';
+    const svg=document.createElementNS(NS,'svg');
+    svg.setAttribute('width','56');svg.setAttribute('height','60');
+    svg.setAttribute('viewBox','0 0 32 36');
+    if(m.type==='dot'){
+      const c=document.createElementNS(NS,'circle');
+      c.setAttribute('cx','16');c.setAttribute('cy','18');c.setAttribute('r','6');
+      c.setAttribute('fill',col);svg.appendChild(c);
+    } else {
+      const d=swatchD[m.type];
+      if(d){
+        const p=document.createElementNS(NS,'path');
+        p.setAttribute('d',d);p.setAttribute('fill','none');
+        p.setAttribute('stroke',col);p.setAttribute('stroke-width','3');
+        p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
+        svg.appendChild(p);
+      }
+    }
+    inner.appendChild(svg);
+    cell.appendChild(num);
+    cell.appendChild(inner);
+    grid.appendChild(cell);
+  });
+}
+
+function buildAlphaGrid(){
+  const grid=document.getElementById('alpha-grid');
+  Object.entries(R).forEach(([letter,recipe])=>{
+    const cell=document.createElement('div');
+    cell.className='alpha-cell';
+    const svg=document.createElementNS(NS,'svg');
+    svg.setAttribute('viewBox','0 0 100 116');
+    svg.style.cssText='width:80%;height:auto;display:block;';
+    const _alt=document.documentElement.classList.contains('light');
+    el('rect',{x:0,y:0,width:100,height:116,fill:'transparent'},svg);
+    el('line',{x1:0,y1:BASE,x2:100,y2:BASE,stroke:_alt?'rgba(0,0,0,.2)':'rgba(255,255,255,.15)','stroke-width':0.6},svg);
+    recipe.forEach(s=>{
+      const col=TYPE_COLOR[s.type]||'#fff';
+      el('path',{d:s.d,fill:'none',stroke:col,'stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round'},svg);
+    });
+    const seq=document.createElement('div');
+    seq.style.cssText='position:absolute;bottom:12px;left:12px;font-size:22px;font-weight:700;opacity:1;letter-spacing:.12em;color:'+(document.documentElement.classList.contains('light')?'#000':'#fff')+(';');
+    seq.textContent=SEQUENCES[letter].split('').join(' ');
+    cell.appendChild(svg);
+    cell.appendChild(seq);
+    grid.appendChild(cell);
+  });
+}
+
+/* ── KEYBOARD PANEL — exact Figma layout ── */
+function buildKeyboardPanel(){
+  const grid=document.getElementById('kb-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+
+  /*
+    Figma grid — 4 cols × 5 rows:
+    R1: empty    empty    * space   - down
+    R2: 7 ∪      empty    empty     + up
+    R3: 4 /      5 (      6 )       back ⌫
+    R4: 1 |      2 —      3 \      enter (spans R4+R5)
+    R5: empty    empty    empty     (enter cont.)
+  */
+  /*
+    Exact layout from screenshot:
+    R1: [empty]        [empty]      [* space]     [- down]
+    R2: [7 ∪]          [empty]      [empty]       [+ up]
+    R3: [4 /]          [5 (]        [6 )]         [back ⌫]
+    R4: [1 |]          [2 —]        [3 \]        [↵ enter — spans R4+R5]
+    R5: [wide rect 1-2 cols]        [empty col3]  (enter cont.)
+  */
+  const cells=[
+    // Row 1 — all squares, 2 empty then space then down
+    {type:'empty'},
+    {type:'empty'},
+    {id:'util-star',  num:'*',  sym:'*',  label:'space', util:true},
+    {id:'util-minus', num:'−',  sym:'−',  label:'down',  util:true},
+    // Row 2
+    {id:'kbkey-7',    num:'7',  sym:'∪',  label:''},
+    {type:'empty'},
+    {type:'empty'},
+    {id:'util-plus',  num:'+',  sym:'+',  label:'up',    util:true},
+    // Row 3
+    {id:'kbkey-4',    num:'4',  sym:'╱',  label:''},
+    {id:'kbkey-5',    num:'5',  sym:'(',  label:''},
+    {id:'kbkey-6',    num:'6',  sym:')',  label:''},
+    {id:'util-back',  num:'⌫', sym:'⌫',  label:'back',  util:true},
+    // Row 4
+    {id:'kbkey-1',    num:'1',  sym:'|',  label:''},
+    {id:'kbkey-2',    num:'2',  sym:'—',  label:''},
+    {id:'kbkey-3',    num:'3',  sym:'╲',  label:''},
+    {id:'util-enter', sym:'',   label:'enter', util:true, enterKey:true},
+    // Row 5 — wide rectangle spanning cols 1+2, one empty col 3, enter continues col 4
+    {type:'wide'},
+    {type:'empty'},
+  ];
+
+  cells.forEach(c=>{
+    const cell=document.createElement('div');
+    if(c.type==='wide'){
+      // Rectangle spanning 2 columns
+      cell.className='kb-key wide-key';
+      // no content — just the shape
+    } else if(c.type==='empty'){
+      cell.className='kb-key empty';
+    } else if(c.enterKey){
+      cell.className='kb-key enter-key';
+      cell.id=c.id||'util-enter';
+      cell.style.gridRow='span 2';
+      cell.innerHTML=`<span class="kb-label" style="position:static;font-size:18px;opacity:.65">enter</span>`;
+    } else {
+      cell.className='kb-key';
+      if(c.id)cell.id=c.id;
+      let inner='';
+      inner+=`<span class="kb-num">${c.num}</span>`;
+      if(c.sym)inner+=`<span class="kb-sym">${c.sym}</span>`;
+      if(c.label)inner+=`<span class="kb-label">${c.label}</span>`;
+      cell.innerHTML=inner;
+    }
+    grid.appendChild(cell);
+  });
+}
+
+function flashKey(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),160);
+}
+
+/* ── LIGHT / DARK MODE TOGGLE ── */
+function toggleMode(){
+  const isLight=document.documentElement.classList.toggle('light');
+  const btn=document.getElementById('mode-toggle');
+  if(btn)btn.textContent=isLight?'DARK':'LIGHT';
+  // Re-render glyph and alpha SVGs with correct background
+  drawGuides(document.getElementById('glyph-svg'));
+  renderOutput();
+  // Rebuild alpha grid so SVG backgrounds update
+  const ag=document.getElementById('alpha-grid');
+  if(ag){ag.innerHTML='';buildAlphaGrid();}
+}
+
+/* INIT */
+buildKeysGrid();
+buildAlphaGrid();
+buildKeyboardPanel();
+drawGuides(document.getElementById('glyph-svg'));
+updateSeq();
+updateCandidates();
+renderOutput();
 </script>
 </body>
 </html>
